@@ -2,7 +2,7 @@
  <footer class="main-footer">
    <!-- To the right -->
    <!-- Default to the left -->
-   <strong>Copyright &copy; <?php date('Y') ?> <a href="javascript:void(0);">Rian Septiadi</a>.</strong> All rights reserved.
+   <strong>Copyright &copy; <?= date('Y') ?> <a href="javascript:void(0);"><span class="text-danger">Fatharani Ihza</span></a>.</strong> All rights reserved.
  </footer>
  <script>
    $(document).on({

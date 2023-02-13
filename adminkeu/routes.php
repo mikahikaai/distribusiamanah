@@ -10,6 +10,10 @@ if (isset($_GET['page'])) {
       file_exists('pages/home.php') ? include 'pages/home.php' : include '../pages/404.php';
       $title = 'Home';
       break;
+    case 'dataorder':
+      file_exists('pages/order/orderread.php') ? include 'pages/order/orderread.php' : include '../pages/404.php';
+      $title = 'Data Order';
+      break;
     case 'distributorread':
       file_exists('pages/distributor/distributorread.php') ? include 'pages/distributor/distributorread.php' : include '../pages/404.php';
       $title = 'Distributor';

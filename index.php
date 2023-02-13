@@ -1,3 +1,103 @@
+<?php
+include "database/database.php";
+$database = new Database;
+$db = $database->getConnection();
+session_start();
+// var_dump($_SERVER);
+// die();
+
+// var_dump($_SERVER["HTTP_HOST"]);
+// die();
+
+if (isset($_SESSION['suksesreset'])) {
+  $suksesreset = true;
+} else {
+  $suksesreset = false;
+}
+
+if (isset($_SESSION['errorakses'])) {
+  $errorakses = true;
+} else {
+  $errorakses = false;
+}
+
+$errorlogin = false;
+
+if (isset($_COOKIE['id']) && isset($_COOKIE['keylog'])) {
+  $loginsql = "SELECT * FROM karyawan WHERE id=?";
+  $stmt = $db->prepare($loginsql);
+  $stmt->bindParam(1, $_COOKIE['id']);
+  $stmt->execute();
+  $row = $stmt->fetch(PDO::FETCH_ASSOC);
+  if ($_COOKIE['keylog'] === hash('sha256', $row['username'])) {
+    $_SESSION['id'] = $row['id'];
+    $_SESSION['username'] = $row['username'];
+    $_SESSION['jabatan'] = $row['jabatan'];
+    $_SESSION['nama'] = $row['nama'];
+    $_SESSION['foto'] = $row['foto'];
+    $_SESSION['login_sukses'] = true;
+  }
+}
+
+if (isset($_SESSION['jabatan'])) {
+  if ($_SESSION['jabatan'] == "ADMINKEU") {
+    echo '<meta http-equiv="refresh" content="0;url=/adminkeu/"/>';
+  } else if ($_SESSION['jabatan'] == "SPVDISTRIBUSI") {
+    echo '<meta http-equiv="refresh" content="0;url=/spvdist/"/>';
+  } else if ($_SESSION['jabatan'] == "DRIVER" or $_SESSION['jabatan'] == "HELPER") {
+    echo '<meta http-equiv="refresh" content="0;url=/karyawan/"/>';
+  } else if ($_SESSION['jabatan'] == "MGRDISTRIBUSI") {
+    echo '<meta http-equiv="refresh" content="0;url=/mgrdist/"/>';
+  }
+  die();
+}
+
+if (isset($_POST['login'])) {
+  $loginsql = "SELECT * FROM karyawan WHERE username=? and password=?";
+  $stmt = $db->prepare($loginsql);
+  $stmt->bindParam(1, $_POST['username']);
+  $md5 = md5($_POST['password']);
+  $stmt->bindParam(2, $md5);
+  $stmt->execute();
+
+  $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if ($stmt->rowCount() > 0) {
+    $_SESSION['id'] = $row['id'];
+    $_SESSION['username'] = $row['username'];
+    $_SESSION['jabatan'] = $row['jabatan'];
+    $_SESSION['nama'] = $row['nama'];
+    $_SESSION['foto'] = $row['foto'];
+    $_SESSION['login_sukses'] = true;
+
+    if (isset($_POST['remember'])) {
+      setcookie('id', $row['id'], time() + 60 * 60 * 24 * 7);
+      setcookie('keylog', hash('sha256', $row['username']), time() + 60 * 60 * 24 * 7);
+    }
+
+    if ($_SESSION['jabatan'] == "ADMINKEU") {
+      echo '<meta http-equiv="refresh" content="0;url=/adminkeu/"/>';
+      die();
+    } else if ($_SESSION['jabatan'] == "SPVDISTRIBUSI") {
+      echo '<meta http-equiv="refresh" content="0;url=/spvdist"/>';
+      die();
+    } else if ($_SESSION['jabatan'] == "DRIVER" || $_SESSION['jabatan'] == "HELPER") {
+      echo '<meta http-equiv="refresh" content="0;url=/karyawan"/>';
+      die();
+    } else if ($_SESSION['jabatan'] == "MGRDISTRIBUSI") {
+      echo '<meta http-equiv="refresh" content="0;url=/mgrdist"/>';
+      die();
+    }
+  } else {
+    $errorlogin = true;
+  }
+}
+
+
+// var_dump($errorlogin);
+// die();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,7 +182,7 @@
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" name="login" class="btn btn-primary">Login</button>
                       </div>
                     </form>
                   </div>

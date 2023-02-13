@@ -205,6 +205,8 @@ include_once "../partials/scripts.php";
     var title = '<?= $title; ?>';
     if (title == "Home") {
       $("a#home").addClass("active");
+    } else if (title == "Data Order") {
+      $("a#inputdataorder").addClass("active");
     } else if (title == "Armada") {
       $("a#armada").addClass("active");
       $("li#master_data").addClass("menu-open");

@@ -9,9 +9,9 @@ class Database
   {
     // 1357
     $online = array("srv158.niagahoster.com", "u1796449_rianseptiadi", "Rtbcvyfhgnpozx1!", "u1796449_ayominumamanah");
-    $offline = array("localhost", "root", "", "ayominumamanah");
+    $offline = array("localhost", "root", "", "distribusiamanah");
 
-    $koneksi = 1; // online
+    $koneksi = 0; // online
 
     if ($koneksi == 1) {
       $this->host = $online[0];

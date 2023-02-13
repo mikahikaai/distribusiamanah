@@ -261,40 +261,13 @@
           </li>
         <?php } else if ($_SESSION['jabatan'] == "ADMINKEU") {
         ?>
-          <li class="nav-item" id="pengajuaninsentif">
-            <a href="#" class="nav-link" id="link_pengajuaninsentif">
+          <li class="nav-item">
+            <a href="?page=dataorder" class="nav-link" id="inputdataorder">
               <i class="nav-icon fas fa-money-bill"></i>
               <p>
-                Penggajian
-                <i class="right fas fa-angle-left"></i>
+                Data Order
               </p>
             </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="?page=upahbelumdiajukan" class="nav-link" id="upahbelumdiajukan">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Upah Belum Pengajuan</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="?page=rangepengajuaninsentif" class="nav-link" id="pengajuaninsentif">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Pengajuan Insentif</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="?page=cetakupah" class="nav-link" id="cetakupah">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Cetak Pengajuan Upah</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="?page=cetakinsentif" class="nav-link" id="cetakinsentif">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Cetak Pengajuan Insentif</p>
-                </a>
-              </li>
-            </ul>
           </li>
           <li class="nav-item" id="rekapitulasi">
             <a href="#" class="nav-link" id="link_rekapitulasi">
