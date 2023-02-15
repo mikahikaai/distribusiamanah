@@ -110,12 +110,15 @@ include_once "../partials/scripts.php";
   <button class="btn btn-success btn-lg rounded-circle" id="tothetop" onclick="topFunction();" style="position : fixed; bottom: 20px; right: 20px; display: none;"><i class="fas fa-angle-double-up"></i></button>
   <?php
   echo '<meta http-equiv="refresh" content="900;url=../logout.php"/>';
+  include_once "../partials/scriptdatatables.php";
   ?>
 </body>
 
 <script src="../plugins/tempusdominus-bootstrap-4/js/jQuery-provider.min.js"></script>
 
+
 <script>
+  
   $("title").html("Amanah | <?= $title ?>");
   $(document).ready(function() {
     $('input').attr('autocomplete', 'off')

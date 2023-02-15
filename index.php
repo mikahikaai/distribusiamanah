@@ -318,7 +318,9 @@ if (isset($_POST['login'])) {
     </div>
   </footer>
   <script>
-    AOS.init();
+    AOS.init({
+      once: true
+    });
   </script>
 </body>
 

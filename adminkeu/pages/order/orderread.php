@@ -93,7 +93,7 @@ if (isset($_SESSION['hasil'])) {
           $database = new Database;
           $db = $database->getConnection();
 
-          $selectsql = 'SELECT * FROM pemesanan p INNER JOIN distributor d ON p.id_distro = d.id';
+          $selectsql = 'SELECT *, p.id id_order FROM pemesanan p INNER JOIN distributor d ON p.id_distro = d.id';
           $stmt = $db->prepare($selectsql);
           $stmt->execute();
 
@@ -111,10 +111,10 @@ if (isset($_SESSION['hasil'])) {
               <td><?= $row['a600'] ?></td>
               <td><?= $row['refill'] ?></td>
               <td>
-                <a href="?page=orderupdate&id=<?= $row['id']; ?>" class="btn btn-primary btn-sm mr-1">
+                <a href="?page=orderupdate&id=<?= $row['id_order']; ?>" class="btn btn-primary btn-sm mr-1">
                   <i class="fa fa-edit"></i> Ubah
                 </a>
-                <a href="?page=orderdelete&id=<?= $row['id']; ?>" class="btn btn-danger btn-sm mr-1" id='deleteorder'>
+                <a href="?page=orderdelete&id=<?= $row['id_order']; ?>" class="btn btn-danger btn-sm mr-1" id='deleteorder'>
                   <i class="fa fa-trash"></i> Hapus
                 </a>
               </td>

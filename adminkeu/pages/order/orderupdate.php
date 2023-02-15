@@ -1,53 +1,37 @@
 <?php
+
 $database = new Database;
 $db = $database->getConnection();
 
-if (isset($_POST['button_edit'])) {
-  $updatesql = "UPDATE armada SET plat=?, jenis_mobil=?, kateg_mobil=?, kecepatan_kosong=?, kecepatan_muatan=?, status_keaktifan=?  where id=?";
+$select_distro = "SELECT * FROM distributor WHERE status_keaktifan = 'AKTIF' ORDER BY nama ASC";
+$stmt_distro = $db->prepare($select_distro);
+
+
+
+if (isset($_POST['button_create'])) {
+
+  //validasi 0 input
+  $cup = !empty($_POST['cup']) ? $_POST['cup'] : 0;
+  $a330 = !empty($_POST['a330']) ? $_POST['a330'] : 0;
+  $a500 = !empty($_POST['a500']) ? $_POST['a500'] : 0;
+  $a600 = !empty($_POST['a600']) ? $_POST['a600'] : 0;
+  $refill = !empty($_POST['refill']) ? $_POST['refill'] : 0;
+
+
+  $updatesql = "UPDATE pemesanan SET tgl_order=?, id_distro=?, cup=?, a330=?, a500=?, a600=?, refill=? WHERE id=?";
   $stmt = $db->prepare($updatesql);
 
-  $plat = strtoupper($_POST['plat']);
-  $jenis = strtoupper($_POST['jenis_mobil']);
+  $tanggal = date_create_from_format('d/m/Y', $_POST['tanggal'])->format('Y-m-d');
+  $stmt->bindParam(1, $tanggal);
 
-  switch ($jenis) {
-    case 'GRAN MAX':
-    case 'L300':
-      $kateg = 'S';
-      break;
-    case 'ENGKEL':
-      $kateg = 'M';
-      break;
-    case 'PS':
-      $kateg = 'L';
-      break;
-    case 'FUSO':
-      $kateg = 'XL';
-      break;
-  }
+  $stmt->bindParam(2, $_POST['distributor']);
+  $stmt->bindParam(3, $cup);
+  $stmt->bindParam(4, $a330);
+  $stmt->bindParam(5, $a500);
+  $stmt->bindParam(6, $a600);
+  $stmt->bindParam(7, $refill);
+  $stmt->bindParam(8, $_GET['id']);
 
-  switch ($kateg) {
-    case 'S':
-    case 'M':
-      $kecepatan_kosong = '55';
-      $kecepatan_muatan = '40';
-      break;
-    case 'L':
-      $kecepatan_kosong = '50';
-      $kecepatan_muatan = '35';
-      break;
-    case 'XL':
-      $kecepatan_kosong = '45';
-      $kecepatan_muatan = '30';
-      break;
-  }
-
-  $stmt->bindParam(1, $_POST['plat']);
-  $stmt->bindParam(2, $_POST['jenis_mobil']);
-  $stmt->bindParam(3, $kateg);
-  $stmt->bindParam(4, $kecepatan_kosong);
-  $stmt->bindParam(5, $kecepatan_muatan);
-  $stmt->bindParam(6, $_POST['status_keaktifan']);
-  $stmt->bindParam(7, $_GET['id']);
   if ($stmt->execute()) {
     $_SESSION['hasil_update'] = true;
     $_SESSION['pesan'] = "Berhasil Mengubah Data";
@@ -55,12 +39,12 @@ if (isset($_POST['button_edit'])) {
     $_SESSION['hasil_update'] = false;
     $_SESSION['pesan'] = "Gagal Mengubah Data";
   }
-  echo '<meta http-equiv="refresh" content="0;url=?page=armadaread"/>';
+  echo '<meta http-equiv="refresh" content="0;url=?page=dataorder"/>';
   exit;
 }
 
 if (isset($_GET['id'])) {
-  $selectsql = "SELECT * FROM armada where id=?";
+  $selectsql = "SELECT * FROM pemesanan where id=?";
   $stmt = $db->prepare($selectsql);
   $stmt->bindParam(1, $_GET['id']);
   $stmt->execute();
@@ -73,13 +57,13 @@ if (isset($_GET['id'])) {
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
-        <h1 class="m-0">Armada</h1>
+        <h1 class="m-0">Order</h1>
       </div><!-- /.col -->
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="?page=home">Home</a></li>
-          <li class="breadcrumb-item"><a href="?page=armadaread">Armada</a></li>
-          <li class="breadcrumb-item active">Ubah Armada</li>
+          <li class="breadcrumb-item"><a href="?page=dataorder">Order</a></li>
+          <li class="breadcrumb-item active">Ubah Order</li>
         </ol>
       </div><!-- /.col -->
     </div><!-- /.row -->
@@ -91,45 +75,67 @@ if (isset($_GET['id'])) {
 <div class="content">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Ubah Data Armada</h3>
+      <h3 class="card-title">Data Ubah Order</h3>
     </div>
     <div class="card-body">
-      <form action="" method="post"" id=" updateForm">
+      <form action="" method="post">
         <div class="form-group">
-          <label for="plat">Plat</label>
-          <input type="text" name="plat" class="form-control" value="<?= $row['plat'] ?>" required>
+          <label for="no_order">Nomor Order</label>
+          <input type="text" class="form-control" value="<?= $row['nomor_order']?>" readonly>
         </div>
         <div class="form-group">
-          <label for="jenis_mobil">Jenis Mobil</label>
-          <select name="jenis_mobil" class="form-control" required>
-            <option value="">--Pilih Jenis Mobil--</option>
+          <label for="tanggal">Tanggal Order</label>
+          <input type="text" name="tanggal" class="form-control" id="datetimepicker2" value="<?= $row['tgl_order']?>" required>
+        </div>
+        <div class="form-group">
+          <label for="distributor">Distributor</label>
+          <select name="distributor" class="form-control" required>
+            <option value="">--Pilih Distributor--</option>
             <?php
-            $options = array('GRAN MAX', 'L300', 'ENGKEL', 'PS', 'FUSO');
-            foreach ($options as $option) {
-              $selected = $row['jenis_mobil'] == $option ? 'selected' : '';
-              echo "<option value=\"" . $option . "\"" . $selected . ">" . $option . "</option>";
+            $stmt_distro->execute();
+            while ($row_distro = $stmt_distro->fetch(PDO::FETCH_ASSOC)) {
+              $selected = $row_distro['id'] == $row['id_distro'] ? 'selected' : '';
+              echo "<option $selected value=\"" . $row_distro['id'] . "\">" . $row_distro['nama'], " - ", $row_distro['id_da'], " (", $row_distro['jarak'], " km)" . "</option>";
             }
             ?>
           </select>
         </div>
-        <div class="form-group">
-          <label for="status_keaktifan">Status Keaktifan</label>
-          <select name="status_keaktifan" class="form-control" required>
-            <option value="">--Pilih Status Keaktifan--</option>
-            <?php
-            $options = array('AKTIF', 'NON AKTIF');
-            foreach ($options as $option) {
-              $selected = $row['status_keaktifan'] == $option ? 'selected' : '';
-              echo "<option value=\"" . $option . "\"" . $selected . ">" . $option . "</option>";
-            }
-            ?>
-          </select>
+        <div class="row">
+          <div class="col-md">
+            <div class="form-group">
+              <label for="cup">Cup</label>
+              <input type="number" name="cup" class="form-control" value="<?= $row['cup'] ?>">
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="form-group">
+              <label for="a330">A330</label>
+              <input type="number" name="a330" class="form-control" value="<?= $row['a330'] ?>">
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="form-group">
+              <label for="a500">A500</label>
+              <input type="number" name="a500" class="form-control" value="<?= $row['a500'] ?>">
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="form-group">
+              <label for="a600">A600</label>
+              <input type="number" name="a600" class="form-control" value="<?= $row['a600'] ?>">
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="form-group">
+              <label for="refill">Refill</label>
+              <input type="number" name="refill" class="form-control" value="<?= $row['refill'] ?>">
+            </div>
+          </div>
         </div>
-
-        <a href="?page=armadaread" class="btn btn-danger btn-sm float-right">
+        <a href="?page=dataorder" class="btn btn-danger btn-sm float-right">
           <i class="fa fa-arrow-left"></i> Kembali
         </a>
-        <button type="submit" name="button_edit" id="updatearmada" class="btn btn-primary btn-sm float-right mr-1">
+        <button type="submit" name="button_create" class="btn btn-success btn-sm float-right mr-1">
           <i class="fa fa-save"></i> Ubah
         </button>
       </form>

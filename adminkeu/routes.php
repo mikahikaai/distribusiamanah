@@ -14,6 +14,18 @@ if (isset($_GET['page'])) {
       file_exists('pages/order/orderread.php') ? include 'pages/order/orderread.php' : include '../pages/404.php';
       $title = 'Data Order';
       break;
+    case 'ordercreate':
+      file_exists('pages/order/ordercreate.php') ? include 'pages/order/ordercreate.php' : include '../pages/404.php';
+      $title = 'Data Order';
+      break;
+    case 'orderupdate':
+      file_exists('pages/order/orderupdate.php') ? include 'pages/order/orderupdate.php' : include '../pages/404.php';
+      $title = 'Data Order';
+      break;
+    case 'orderdelete':
+      file_exists('pages/order/orderdelete.php') ? include 'pages/order/orderdelete.php' : include '../pages/404.php';
+      $title = 'Data Order';
+      break;
     case 'distributorread':
       file_exists('pages/distributor/distributorread.php') ? include 'pages/distributor/distributorread.php' : include '../pages/404.php';
       $title = 'Distributor';
