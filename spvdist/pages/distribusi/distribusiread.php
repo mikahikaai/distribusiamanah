@@ -42,6 +42,7 @@ if (isset($_SESSION['hasil_validasi'])) {
     <div class="row mb-2">
       <div class="col-sm-6">
         <h1 class="m-0">Distribusi</h1>
+        
       </div><!-- /.col -->
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
@@ -59,6 +60,9 @@ if (isset($_SESSION['hasil_validasi'])) {
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Data Distribusi</h3>
+      <a href="?page=distribusicreate" class="btn btn-success btn-sm float-right">
+        <i class="fa fa-plus-circle"></i> Tambah Data
+      </a>
     </div>
     <div class="card-body">
       <table id="mytable" class="table table-bordered table-hover" style="white-space: nowrap; background-color: white; table-layout: fixed;">
