@@ -108,13 +108,16 @@ $stmt_karyawan = $db->prepare($select_karyawan);
             </div>
           </div>
         </div>
-        <div class="card">
+        <div id="rownum" class="card">
           <div class="card-header">
-            <h4 class="card-title">Tujuan 1</h4>
+            <h4 id="new_tujuan" class="card-title">Tujuan 1</h4>
+            <button type="button" name="tambah_tujuan" class="btn btn-success btn-sm float-right">
+              <i class="fa fa-plus"></i>
+            </button>
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label for="nama_pel_1">Distributor</label>
                   <select name="nama_pel_1" class="form-control" required>
@@ -129,12 +132,18 @@ $stmt_karyawan = $db->prepare($select_karyawan);
                   </select>
                 </div>
               </div>
-              <div class="col-md-6">
+              <div class="col-md-4">
                 <div class="form-group">
                   <label for="pesanan">Pesanan</label>
                   <select id="listorder" name="pesanan" class="form-control" required>
                     <option value="">--Pilih Order--</option>
                   </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="tgl_order">Tanggal Order</label>
+                  <input type="text" class="form-control" name="tgl_order" readonly>
                 </div>
               </div>
             </div>
@@ -143,38 +152,40 @@ $stmt_karyawan = $db->prepare($select_karyawan);
               <div class="col-md">
                 <div class="form-group">
                   <label for="cup1">Muatan Cup</label>
-                  <input type="number" name="cup1" class="form-control">
+                  <input type="number" name="cup1" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a3301">Muatan A330</label>
-                  <input type="number" name="a3301" class="form-control">
+                  <input type="number" name="a3301" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a5001">Muatan A500</label>
-                  <input type="number" name="a5001" class="form-control">
+                  <input type="number" name="a5001" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a6001">Muatan A600</label>
-                  <input type="number" name="a6001" class="form-control">
+                  <input type="number" name="a6001" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="refill1">Muatan Refill</label>
-                  <input type="number" name="refill1" class="form-control">
+                  <input type="number" name="refill1" class="form-control" readonly>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="form-group">
+        <div id="new"></div>
+
+        <div class="form-group mt-3">
           <label for="jam_berangkat">Jam Keberangkatan</label>
           <div class="row">
             <div class="col-md-4">
@@ -212,25 +223,142 @@ include_once "../partials/scriptdatatables.php";
       method: "GET",
       dataType: 'json',
       success: function(data) {
-        console.log(data);
-        console.log(data[0][1]);
-        console.log(data[1][1]);
-        console.log(data[2][1]);
+        // console.log(data);
         if (data[0].length == 0) {
           var option = document.createElement("option");
           option.value = ``;
           option.text = `Order tidak ditemukan`;
           addition.add(option);
+          $("input[name='tgl_order']").val('Order tidak ditemukan')
+          $("input[name='cup1']").val(0)
+          $("input[name='a3301']").val(0)
+          $("input[name='a5001']").val(0)
+          $("input[name='a6001']").val(0)
+          $("input[name='refill1']").val(0)
         } else {
           for (let i = 0; i < data.length; i++) {
             var option = document.createElement("option");
             option.value = `${data[i][0]}`;
             option.text = `${data[i][1]}`;
             addition.add(option);
+            $("input[name='tgl_order']").val(data[i][2]);
+            $("input[name='cup1']").val(data[i][3]);
+            $("input[name='a3301']").val(data[i][4]);
+            $("input[name='a5001']").val(data[i][5]);
+            $("input[name='a6001']").val(data[i][6]);
+            $("input[name='refill1']").val(data[i][7]);
           }
         }
       }
     });
+  });
+
+  $('select[name="pesanan"]').on('change', function(e) {
+    var optionSelected = $("option:selected", this);
+    var valueSelected = this.value;
+    $.ajax({
+      url: "./pages/distribusi/dataorderbyid.php?id=" + valueSelected,
+      method: "GET",
+      dataType: 'json',
+      success: function(data) {
+        // console.log(data);
+        for (let i = 0; i < data.length; i++) {
+          $("input[name='cup1']").val(data[0]);
+          $("input[name='a3301']").val(data[1]);
+          $("input[name='a5001']").val(data[2]);
+          $("input[name='a6001']").val(data[3]);
+          $("input[name='refill1']").val(data[4]);
+        }
+      }
+    });
+  });
+
+  var i = 0;
+  $('button[name="tambah_tujuan"]').on('click', function(e) {
+    i++;
+    var html = '';
+    html += '<div id="rowbaru">';
+    html += '<div class="card">';
+    html += '<div class="card-header">';
+    html += `<h4 id="new_tujuan" class="card-title">Tujuan ${i+1}</h4>`;
+    html += '<button type="button" name="hapus_tujuan" class="btn btn-danger btn-sm float-right">';
+    html += '<i class="fa fa-trash"></i>';
+    html += '</button>';
+    html += '</div>';
+    html += '<div class="card-body">';
+    html += '<div class="row">';
+    html += '<div class="col-md-4">';
+    html += '<div class="form-group">';
+    html += '<label for="nama_pel_1">Distributor</label>';
+    html += '<select name="nama_pel_1" class="form-control" required>';
+    html += '<option value="">--Pilih Nama Distributor--</option>';
+    html += '<?php $stmt_distro->execute();
+              while ($row_distro = $stmt_distro->fetch(PDO::FETCH_ASSOC)) { ?>';
+    html += '<option value="<?= $row_distro['id'] ?>"><?= $row_distro['nama'] . " - " . $row_distro['id_da'] . "(" . $row_distro['jarak'] . ")" . "km" ?> </option>';
+    html += '<?php } ?>';
+    html += '</select>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md-4">';
+    html += '<div class="form-group">';
+    html += '<label for="pesanan">Pesanan</label>';
+    html += '<select id="listorder" name="pesanan" class="form-control" required>';
+    html += '<option value="">--Pilih Order--</option>';
+    html += '</select>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md-4">';
+    html += '<div class="form-group">';
+    html += '<label for="tgl_order">Tanggal Order</label>';
+    html += '<input type="text" class="form-control" name="tgl_order" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="row">';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="cup1">Muatan Cup</label>';
+    html += '<input type="number" name="cup1" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="a3301">Muatan A330</label>';
+    html += '<input type="number" name="a3301" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="a5001">Muatan A500</label>';
+    html += '<input type="number" name="a5001" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="a6001">Muatan A600</label>';
+    html += '<input type="number" name="a6001" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="refill1">Muatan Refill</label>';
+    html += '<input type="number" name="refill1" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    $('#new').append(html);
+  });
+
+  $(document).on('click', 'button[name="hapus_tujuan"]', function() {
+    $(this).closest('#rowbaru').remove();
+    $('div div div div h4#new_tujuan').each(function(index){
+      $(this).text("Tujuan " + (index + 1))
+    });
+    i--;
   });
 </script>
 <!-- /.content -->

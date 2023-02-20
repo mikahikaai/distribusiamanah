@@ -5,24 +5,19 @@ include '../../../database/database.php';
 $database = new Database;
 $db = $database->getConnection();
 
-$query = "SELECT * FROM pemesanan WHERE id_distro=?";
+$query = "SELECT * FROM pemesanan WHERE id=?";
 $stmt = $db->prepare($query);
 $stmt->bindParam(1, $_GET['id']);
 $stmt->execute();
 
-$data = [[]];
-$i = 0;
-while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-  $data[$i][] = $result['id'];
-  $data[$i][] = $result['nomor_order'];
-  $data[$i][] = tanggal_indo($result['tgl_order']);
-  $data[$i][] = $result['cup'];
-  $data[$i][] = $result['a330'];
-  $data[$i][] = $result['a500'];
-  $data[$i][] = $result['a600'];
-  $data[$i][] = $result['refill'];
-  $i++;
-}
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$data = [];
+  $data[] = $result['cup'];
+  $data[] = $result['a330'];
+  $data[] = $result['a500'];
+  $data[] = $result['a600'];
+  $data[] = $result['refill'];
 
 echo json_encode($data);
 
