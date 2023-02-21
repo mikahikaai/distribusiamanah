@@ -117,7 +117,7 @@ $stmt_karyawan = $db->prepare($select_karyawan);
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-md-4">
+              <div class="col-md-4" id="xyz1">
                 <div class="form-group">
                   <label for="nama_pel_1">Distributor</label>
                   <select name="nama_pel_1" class="form-control" required>
@@ -132,7 +132,7 @@ $stmt_karyawan = $db->prepare($select_karyawan);
                   </select>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4" id="xyz2">
                 <div class="form-group">
                   <label for="pesanan">Pesanan</label>
                   <select id="listorder" name="pesanan" class="form-control" required>
@@ -140,7 +140,7 @@ $stmt_karyawan = $db->prepare($select_karyawan);
                   </select>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4" id="xyz3">
                 <div class="form-group">
                   <label for="tgl_order">Tanggal Order</label>
                   <input type="text" class="form-control" name="tgl_order" readonly>
@@ -213,68 +213,8 @@ include_once "../partials/scriptdatatables.php";
     return false;
   });
 
-  $('select[name="nama_pel_1"]').on('change', function(e) {
-    var optionSelected = $("option:selected", this);
-    var valueSelected = this.value;
-    var addition = document.getElementById('listorder');
-    $('#listorder').find('option').remove().end()
-    $.ajax({
-      url: "./pages/distribusi/dataorder.php?id=" + valueSelected,
-      method: "GET",
-      dataType: 'json',
-      success: function(data) {
-        // console.log(data);
-        if (data[0].length == 0) {
-          var option = document.createElement("option");
-          option.value = ``;
-          option.text = `Order tidak ditemukan`;
-          addition.add(option);
-          $("input[name='tgl_order']").val('Order tidak ditemukan')
-          $("input[name='cup1']").val(0)
-          $("input[name='a3301']").val(0)
-          $("input[name='a5001']").val(0)
-          $("input[name='a6001']").val(0)
-          $("input[name='refill1']").val(0)
-        } else {
-          for (let i = 0; i < data.length; i++) {
-            var option = document.createElement("option");
-            option.value = `${data[i][0]}`;
-            option.text = `${data[i][1]}`;
-            addition.add(option);
-            $("input[name='tgl_order']").val(data[i][2]);
-            $("input[name='cup1']").val(data[i][3]);
-            $("input[name='a3301']").val(data[i][4]);
-            $("input[name='a5001']").val(data[i][5]);
-            $("input[name='a6001']").val(data[i][6]);
-            $("input[name='refill1']").val(data[i][7]);
-          }
-        }
-      }
-    });
-  });
-
-  $('select[name="pesanan"]').on('change', function(e) {
-    var optionSelected = $("option:selected", this);
-    var valueSelected = this.value;
-    $.ajax({
-      url: "./pages/distribusi/dataorderbyid.php?id=" + valueSelected,
-      method: "GET",
-      dataType: 'json',
-      success: function(data) {
-        // console.log(data);
-        for (let i = 0; i < data.length; i++) {
-          $("input[name='cup1']").val(data[0]);
-          $("input[name='a3301']").val(data[1]);
-          $("input[name='a5001']").val(data[2]);
-          $("input[name='a6001']").val(data[3]);
-          $("input[name='refill1']").val(data[4]);
-        }
-      }
-    });
-  });
-
   var i = 0;
-  $('button[name="tambah_tujuan"]').on('click', function(e) {
+  $('button[name="tambah_tujuan"]').on('click', function() {
     i++;
     var html = '';
     html += '<div id="rowbaru">';
@@ -287,19 +227,19 @@ include_once "../partials/scriptdatatables.php";
     html += '</div>';
     html += '<div class="card-body">';
     html += '<div class="row">';
-    html += '<div class="col-md-4">';
+    html += '<div class="col-md-4" id="xyz1">';
     html += '<div class="form-group">';
     html += '<label for="nama_pel_1">Distributor</label>';
     html += '<select name="nama_pel_1" class="form-control" required>';
     html += '<option value="">--Pilih Nama Distributor--</option>';
     html += '<?php $stmt_distro->execute();
               while ($row_distro = $stmt_distro->fetch(PDO::FETCH_ASSOC)) { ?>';
-    html += '<option value="<?= $row_distro['id'] ?>"><?= $row_distro['nama'] . " - " . $row_distro['id_da'] . "(" . $row_distro['jarak'] . ")" . "km" ?> </option>';
+    html += '<option value="<?= $row_distro['id'] ?>"><?= $row_distro['nama'] . " - " . $row_distro['id_da'] . " (" . $row_distro['jarak'] . " km)" ?> </option>';
     html += '<?php } ?>';
     html += '</select>';
     html += '</div>';
     html += '</div>';
-    html += '<div class="col-md-4">';
+    html += '<div class="col-md-4" id="xyz2">';
     html += '<div class="form-group">';
     html += '<label for="pesanan">Pesanan</label>';
     html += '<select id="listorder" name="pesanan" class="form-control" required>';
@@ -307,7 +247,7 @@ include_once "../partials/scriptdatatables.php";
     html += '</select>';
     html += '</div>';
     html += '</div>';
-    html += '<div class="col-md-4">';
+    html += '<div class="col-md-4" id="xyz3">';
     html += '<div class="form-group">';
     html += '<label for="tgl_order">Tanggal Order</label>';
     html += '<input type="text" class="form-control" name="tgl_order" readonly>';
@@ -353,9 +293,68 @@ include_once "../partials/scriptdatatables.php";
     $('#new').append(html);
   });
 
+  $(document).on('change', 'select[name="nama_pel_1"]', function(e) {
+    var optionSelected = $("option:selected", e.target);
+    var valueSelected = e.target.value;
+    // console.log(valueSelected);
+    $(e.target).parents('#xyz1').siblings('#xyz2').find('option').remove().end();
+    $.ajax({
+      url: "./pages/distribusi/dataorder.php?id=" + valueSelected,
+      method: "GET",
+      dataType: 'json',
+      success: function(data) {
+        // console.log(data);
+        if (data[0].length == 0) {
+          $(e.target).parents('.card-body:first').find('#listorder').append(
+            `<option value="">Order tidak ditemukan</option>`
+          );
+          $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val('Order tidak ditemukan')
+          $(e.target).parents('.card-body:first').find("input[name='cup1']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a3301']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a5001']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a6001']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='refill1']").val(0)
+        } else {
+          for (let i = 0; i < data.length; i++) {
+            $(e.target).parents('.card-body:first').find('#listorder').append(
+              `<option value="${data[i][0]}">${data[i][1]}</option>`
+            );
+          }
+          $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val(data[0][2]);
+          $(e.target).parents('.card-body:first').find("input[name='cup1']").val(data[0][3]);
+          $(e.target).parents('.card-body:first').find("input[name='a3301']").val(data[0][4]);
+          $(e.target).parents('.card-body:first').find("input[name='a5001']").val(data[0][5]);
+          $(e.target).parents('.card-body:first').find("input[name='a6001']").val(data[0][6]);
+          $(e.target).parents('.card-body:first').find("input[name='refill1']").val(data[0][7]);
+        }
+      }
+    });
+  });
+
+  $(document).on('change', 'select[name="pesanan"]', function(e) {
+    var optionSelected = $("option:selected", e.target);
+    var valueSelected = e.target.value;
+    $.ajax({
+      url: "./pages/distribusi/dataorderbyid.php?id=" + valueSelected,
+      method: "GET",
+      dataType: 'json',
+      success: function(data) {
+        // console.log(data);
+        for (let i = 0; i < data.length; i++) {
+          $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val(data[0]);
+          $(e.target).parents('.card-body:first').find("input[name='cup1']").val(data[1]);
+          $(e.target).parents('.card-body:first').find("input[name='a3301']").val(data[2]);
+          $(e.target).parents('.card-body:first').find("input[name='a5001']").val(data[3]);
+          $(e.target).parents('.card-body:first').find("input[name='a6001']").val(data[4]);
+          $(e.target).parents('.card-body:first').find("input[name='refill1']").val(data[5]);
+        }
+      }
+    });
+  });
+
   $(document).on('click', 'button[name="hapus_tujuan"]', function() {
     $(this).closest('#rowbaru').remove();
-    $('div div div div h4#new_tujuan').each(function(index){
+    $('div div div div h4#new_tujuan').each(function(index) {
       $(this).text("Tujuan " + (index + 1))
     });
     i--;

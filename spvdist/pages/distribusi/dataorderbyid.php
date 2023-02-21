@@ -13,6 +13,7 @@ $stmt->execute();
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $data = [];
+  $data[] = tanggal_indo($result['tgl_order']);
   $data[] = $result['cup'];
   $data[] = $result['a330'];
   $data[] = $result['a500'];
