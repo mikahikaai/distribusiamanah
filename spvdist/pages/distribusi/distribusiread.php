@@ -18,31 +18,19 @@ if (isset($_SESSION['hasil'])) {
       <h5><i class="icon fas fa-times"></i>Terjadi Kesalahan</h5>
       <?= $_SESSION['pesan'] ?>
     </div>
-  <?php }
+<?php }
   unset($_SESSION['hasil']);
   unset($_SESSION['pesan']);
 }
 
-if (isset($_SESSION['hasil_validasi'])) {
-  if ($_SESSION['hasil_validasi']) {
-  ?>
-    <div id='hasil_validasi'></div>
-  <?php }
-  unset($_SESSION['hasil_validasi']);
-} else if (isset($_SESSION['hasil_batal'])) {
-  if ($_SESSION['hasil_batal']) {
-  ?>
-    <div id='hasil_batal'></div>
-<?php }
-  unset($_SESSION['hasil_batal']);
-} ?>
+?>
 
 <div class="content-header">
   <div class="container-fluid">
     <div class="row mb-2">
       <div class="col-sm-6">
         <h1 class="m-0">Distribusi</h1>
-        
+
       </div><!-- /.col -->
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
@@ -75,22 +63,16 @@ if (isset($_SESSION['hasil_validasi'])) {
             <th>Nama Driver</th>
             <th>Nama Helper 1</th>
             <th>Nama Helper 2</th>
-            <th>Tujuan 1</th>
-            <th>Tujuan 2</th>
-            <th>Tujuan 3</th>
-            <th>Bongkar</th>
-            <th>Total Cup</th>
-            <th>Total A330</th>
-            <th>Total A500</th>
-            <th>Total A600</th>
-            <th>Total Refill</th>
+            <th>Tujuan</th>
+            <th>Cup</th>
+            <th>A330</th>
+            <th>A500</th>
+            <th>A600</th>
+            <th>Refill</th>
             <th>Jam Berangkat</th>
             <th>Estimasi Jam Datang</th>
             <th>Estimasi Lama Perjalanan</th>
             <th>Jam Datang</th>
-            <th>Keterangan</th>
-            <th>Tanggal Validasi</th>
-            <th>Validator</th>
             <th>Status</th>
             <th style="display: flex;">Opsi</th>
           </tr>
@@ -100,50 +82,25 @@ if (isset($_SESSION['hasil_validasi'])) {
           $database = new Database;
           $db = $database->getConnection();
 
-          $selectsql = "SELECT a.*, d.*, d.id id_distribusi, k1.nama as supir, k1.upah_borongan usupir1, k2.nama helper1, k2.upah_borongan uhelper2, k3.nama helper2, k3.upah_borongan uhelper2, v.nama validator, do1.nama distro1, do1.jarak jdistro1, do2.nama distro2, do2.jarak jdistro2, do3.nama distro3, do3.jarak jdistro3, (SELECT terbayar FROM gaji u LEFT JOIN pengajuan_upah_borongan pu ON pu.id_upah = u.id WHERE u.id_distribusi = d.id ORDER BY terbayar DESC LIMIT 1) upah_verif, (SELECT terbayar FROM gaji i LEFT JOIN pengajuan_insentif_borongan pi ON pi.id_insentif = i.id WHERE i.id_distribusi = d.id ORDER BY terbayar DESC LIMIT 1) insentif_verif
-                    FROM distribusi d
-                    INNER JOIN armada a on d.id_plat = a.id
-                    LEFT JOIN karyawan k1 on d.driver = k1.id
-                    LEFT JOIN karyawan k2 on d.helper_1 = k2.id
-                    LEFT JOIN karyawan k3 on d.helper_2 = k3.id
-                    LEFT JOIN karyawan v on d.validasi_oleh = v.id
-                    LEFT JOIN distributor do1 on d.nama_pel_1 = do1.id
-                    LEFT JOIN distributor do2 on d.nama_pel_2 = do2.id
-                    LEFT JOIN distributor do3 on d.nama_pel_3 = do3.id
-                    ORDER BY tanggal DESC; ";
+          $selectsql = "SELECT *, k1.nama supir, k2.nama helper1, k3.nama helper2, da.id id_distribusi_anggota
+          FROM distribusi_anggota da LEFT JOIN distribusi_barang db on da.id = db.id_distribusi_anggota
+          INNER JOIN armada a ON a.id = da.id_plat
+          LEFT JOIN karyawan k1 ON k1.id = da.driver
+          LEFT JOIN karyawan k2 ON k2.id = da.helper_1
+          LEFT JOIN karyawan k3 ON k3.id = da.helper_2
+          INNER JOIN pemesanan p ON p.id = db.id_order
+          INNER JOIN distributor d ON d.id = p.id_distro";
           $stmt = $db->prepare($selectsql);
           $stmt->execute();
-
-
 
           $no = 1;
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $supir = $row['supir'] == NULL ? '-' : $row['supir'];
             $helper1 = $row['helper1'] == NULL ? '-' : $row['helper1'];
             $helper2 = $row['helper2'] == NULL ? '-' : $row['helper2'];
-            $distro1 = $row['distro1'] == NULL ? '-' : $row['distro1'];
-            $distro2 = $row['distro2'] == NULL ? '-' : $row['distro2'];
-            $distro3 = $row['distro3'] == NULL ? '-' : $row['distro3'];
-            $bongkar = $row['bongkar'] == 0 ? 'TIDAK' : 'YA';
-            $keterangan = $row['keterangan'] == NULL ? '-' : $row['keterangan'];
+            $distro = $row['nama'] == NULL ? '-' : $row['nama'];
             $jam_datang = $row['jam_datang'] == NULL ? '-' : tanggal_indo($row['jam_datang']);
-            $tgl_validasi = $row['tgl_validasi'] == NULL ? '-' : tanggal_indo($row['tgl_validasi']);
-            $validasi_oleh = $row['validator'] == NULL ? '-' : $row['validator'];
             $estimasi_lama_perjalanan = date_diff(date_create($row['jam_berangkat']), date_create($row['estimasi_jam_datang']))->format('%d Hari %h Jam %i Menit %s Detik');
-            switch ($row['status']) {
-              case '0':
-                $status = 'Belum Divalidasi';
-                break;
-              case '1':
-                $status = 'Divalidasi';
-                break;
-              case '2':
-                $status = 'Perlu ACC Uang makan';
-                break;
-              case '3':
-                $status = 'Tidak ACC';
-                break;
-            }
           ?>
             <tr>
               <td><?= $no++ ?></td>
@@ -153,45 +110,27 @@ if (isset($_SESSION['hasil_validasi'])) {
               <td><?= $supir ?></td>
               <td><?= $helper1 ?></td>
               <td><?= $helper2 ?></td>
-              <td><?= $distro1 ?></td>
-              <td><?= $distro2 ?></td>
-              <td><?= $distro3 ?></td>
-              <td><?= $bongkar ?></td>
-              <td><?= $row['cup1'] + $row['cup2'] + $row['cup3'] ?></td>
-              <td><?= $row['a3301'] + $row['a3302'] + $row['a3303'] ?></td>
-              <td><?= $row['a5001'] + $row['a5002'] + $row['a5003'] ?></td>
-              <td><?= $row['a6001'] + $row['a6002'] + $row['a6003'] ?></td>
-              <td><?= $row['refill1'] + $row['refill2'] + $row['refill3'] ?></td>
+              <td><?= $distro ?></td>
+              <td><?= $row['cup'] ?></td>
+              <td><?= $row['a330'] ?></td>
+              <td><?= $row['a500'] ?></td>
+              <td><?= $row['a600'] ?></td>
+              <td><?= $row['refill'] ?></td>
               <td><?= tanggal_indo($row['jam_berangkat']) ?></td>
               <td><?= tanggal_indo($row['estimasi_jam_datang']) ?></td>
               <td><?= $estimasi_lama_perjalanan ?></td>
               <td><?= $jam_datang ?></td>
-              <td><?= $keterangan ?></td>
-              <td><?= $tgl_validasi ?></td>
-              <td><?= $validasi_oleh ?></td>
+              <td><?= $row['status'] ?></td>
               <td>
-                <?php
-                if ($row['status'] == '1') { ?>
-                  <span class="text-success"><i class="fa fa-check"></i> Tervalidasi</span>
-                <?php } ?>
-              </td>
-              <td>
-                <a href="?page=detaildistribusi&id=<?= $row['id']; ?>" class="btn btn-success btn-sm mr-1">
+                <a href="?page=detaildistribusi&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-success btn-sm mr-1">
                   <i class="fa fa-eye"></i> Lihat
                 </a>
-                <?php if ($row['status'] == 0) { ?>
-                  <a href="?page=distribusivalidasi&id=<?= $row['id']; ?>" class="btn btn-primary btn-sm mr-1">
-                    <i class="fa fa-edit"></i> Validasi
-                  </a>
-                <?php } else if ($row['upah_verif'] == 2 or $row['insentif_verif'] == 2) { ?>
-                  <button class="btn btn-secondary btn-sm mr-1 disabled">
-                    <i class="fa fa-times"></i> Batalkan
-                  </button>
-                <?php } else if ($row['status'] == 1) { ?>
-                  <a href="?page=distribusibatalvalidasi&id=<?= $row['id']; ?>" class="btn btn-danger btn-sm mr-1" id="distribusibatalvalidasi">
-                    <i class="fa fa-times"></i> Batalkan
-                  </a>
-                <?php } ?>
+                <a href="?page=updatedistribusi&id=<?= $row['id_distribusi_barang']; ?>" class="btn btn-primary btn-sm mr-1">
+                  <i class="fa fa-edit"></i> Ubah
+                </a>
+                <a href="?page=deletedistribusi&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-danger btn-sm mr-1">
+                  <i class="fa fa-trash"></i> Hapus
+                </a>
               </td>
             </tr>
           <?php } ?>

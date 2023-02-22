@@ -293,8 +293,8 @@ if ($stmt->rowCount() > 0) {
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label for="nama_pel_1">Distributor</label>
-              <select name="nama_pel_1" class="form-control" required>
+              <label for="nama_pel_1[]">Distributor</label>
+              <select name="nama_pel_1[]" class="form-control" required>
                 <option value="">--Pilih Nama Distributor--</option>
                 <?php
                 $stmt_distro->execute();

@@ -44,7 +44,7 @@ $stmt_karyawan = $db->prepare($select_karyawan);
       </a>
     </div>
     <div class="card-body">
-      <form action="" method="post">
+      <form action="?page=doDistribusiCreate" method="post">
         <div class="form-group">
           <label for="id_plat">Armada</label>
           <select name="id_plat" class="form-control" required>
@@ -119,8 +119,8 @@ $stmt_karyawan = $db->prepare($select_karyawan);
             <div class="row">
               <div class="col-md-4" id="xyz1">
                 <div class="form-group">
-                  <label for="nama_pel_1">Distributor</label>
-                  <select name="nama_pel_1" class="form-control" required>
+                  <label for="nama_pel_1[]">Distributor</label>
+                  <select name="nama_pel_1[]" class="form-control" required>
                     <option value="">--Pilih Nama Distributor--</option>
                     <?php
                     $stmt_distro->execute();
@@ -134,8 +134,8 @@ $stmt_karyawan = $db->prepare($select_karyawan);
               </div>
               <div class="col-md-4" id="xyz2">
                 <div class="form-group">
-                  <label for="pesanan">Pesanan</label>
-                  <select id="listorder" name="pesanan" class="form-control" required>
+                  <label for="pesanan[]">Pesanan</label>
+                  <select id="listorder" name="pesanan[]" class="form-control">
                     <option value="">--Pilih Order--</option>
                   </select>
                 </div>
@@ -151,32 +151,32 @@ $stmt_karyawan = $db->prepare($select_karyawan);
             <div class="row">
               <div class="col-md">
                 <div class="form-group">
-                  <label for="cup1">Muatan Cup</label>
-                  <input type="number" name="cup1" class="form-control" readonly>
+                  <label for="cup1[]">Muatan Cup</label>
+                  <input type="number" name="cup1[]" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a3301">Muatan A330</label>
-                  <input type="number" name="a3301" class="form-control" readonly>
+                  <input type="number" name="a3301[]" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a5001">Muatan A500</label>
-                  <input type="number" name="a5001" class="form-control" readonly>
+                  <input type="number" name="a5001[]" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a6001">Muatan A600</label>
-                  <input type="number" name="a6001" class="form-control" readonly>
+                  <input type="number" name="a6001[]" class="form-control" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="refill1">Muatan Refill</label>
-                  <input type="number" name="refill1" class="form-control" readonly>
+                  <input type="number" name="refill1[]" class="form-control" readonly>
                 </div>
               </div>
             </div>
@@ -229,8 +229,8 @@ include_once "../partials/scriptdatatables.php";
     html += '<div class="row">';
     html += '<div class="col-md-4" id="xyz1">';
     html += '<div class="form-group">';
-    html += '<label for="nama_pel_1">Distributor</label>';
-    html += '<select name="nama_pel_1" class="form-control" required>';
+    html += '<label for="nama_pel_1[]">Distributor</label>';
+    html += '<select name="nama_pel_1[]" class="form-control" required>';
     html += '<option value="">--Pilih Nama Distributor--</option>';
     html += '<?php $stmt_distro->execute();
               while ($row_distro = $stmt_distro->fetch(PDO::FETCH_ASSOC)) { ?>';
@@ -241,8 +241,8 @@ include_once "../partials/scriptdatatables.php";
     html += '</div>';
     html += '<div class="col-md-4" id="xyz2">';
     html += '<div class="form-group">';
-    html += '<label for="pesanan">Pesanan</label>';
-    html += '<select id="listorder" name="pesanan" class="form-control" required>';
+    html += '<label for="pesanan[]">Pesanan</label>';
+    html += '<select id="listorder" name="pesanan[]" class="form-control">';
     html += '<option value="">--Pilih Order--</option>';
     html += '</select>';
     html += '</div>';
@@ -257,32 +257,32 @@ include_once "../partials/scriptdatatables.php";
     html += '<div class="row">';
     html += '<div class="col-md">';
     html += '<div class="form-group">';
-    html += '<label for="cup1">Muatan Cup</label>';
-    html += '<input type="number" name="cup1" class="form-control" readonly>';
+    html += '<label for="cup1[]">Muatan Cup</label>';
+    html += '<input type="number" name="cup1[]" class="form-control" readonly>';
     html += '</div>';
     html += '</div>';
     html += '<div class="col-md">';
     html += '<div class="form-group">';
-    html += '<label for="a3301">Muatan A330</label>';
-    html += '<input type="number" name="a3301" class="form-control" readonly>';
+    html += '<label for="a3301[]">Muatan A330</label>';
+    html += '<input type="number" name="a3301[]" class="form-control" readonly>';
     html += '</div>';
     html += '</div>';
     html += '<div class="col-md">';
     html += '<div class="form-group">';
-    html += '<label for="a5001">Muatan A500</label>';
-    html += '<input type="number" name="a5001" class="form-control" readonly>';
+    html += '<label for="a5001[]">Muatan A500</label>';
+    html += '<input type="number" name="a5001[]" class="form-control" readonly>';
     html += '</div>';
     html += '</div>';
     html += '<div class="col-md">';
     html += '<div class="form-group">';
-    html += '<label for="a6001">Muatan A600</label>';
-    html += '<input type="number" name="a6001" class="form-control" readonly>';
+    html += '<label for="a6001[]">Muatan A600</label>';
+    html += '<input type="number" name="a6001[]" class="form-control" readonly>';
     html += '</div>';
     html += '</div>';
     html += '<div class="col-md">';
     html += '<div class="form-group">';
-    html += '<label for="refill1">Muatan Refill</label>';
-    html += '<input type="number" name="refill1" class="form-control" readonly>';
+    html += '<label for="refill1[]">Muatan Refill</label>';
+    html += '<input type="number" name="refill1[]" class="form-control" readonly>';
     html += '</div>';
     html += '</div>';
     html += '</div>';
@@ -304,7 +304,7 @@ include_once "../partials/scriptdatatables.php";
   });
 
 
-  $(document).on('change', 'select[name="nama_pel_1"]', function(e) {
+  $(document).on('change', 'select[name="nama_pel_1[]"]', function(e) {
     var optionSelected = $("option:selected", e.target);
     var valueSelected = e.target.value;
     // console.log(valueSelected);
@@ -320,11 +320,11 @@ include_once "../partials/scriptdatatables.php";
             `<option value="">Order tidak ditemukan</option>`
           );
           $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val('Order tidak ditemukan')
-          $(e.target).parents('.card-body:first').find("input[name='cup1']").val(0)
-          $(e.target).parents('.card-body:first').find("input[name='a3301']").val(0)
-          $(e.target).parents('.card-body:first').find("input[name='a5001']").val(0)
-          $(e.target).parents('.card-body:first').find("input[name='a6001']").val(0)
-          $(e.target).parents('.card-body:first').find("input[name='refill1']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='cup1[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a3301[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a5001[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a6001[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='refill1[]']").val(0)
         } else {
           for (let i = 0; i < data.length; i++) {
             $(e.target).parents('.card-body:first').find('#listorder').append(
@@ -332,17 +332,17 @@ include_once "../partials/scriptdatatables.php";
             );
           }
           $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val(data[0][2]);
-          $(e.target).parents('.card-body:first').find("input[name='cup1']").val(data[0][3]);
-          $(e.target).parents('.card-body:first').find("input[name='a3301']").val(data[0][4]);
-          $(e.target).parents('.card-body:first').find("input[name='a5001']").val(data[0][5]);
-          $(e.target).parents('.card-body:first').find("input[name='a6001']").val(data[0][6]);
-          $(e.target).parents('.card-body:first').find("input[name='refill1']").val(data[0][7]);
+          $(e.target).parents('.card-body:first').find("input[name='cup1[]']").val(data[0][3]);
+          $(e.target).parents('.card-body:first').find("input[name='a3301[]']").val(data[0][4]);
+          $(e.target).parents('.card-body:first').find("input[name='a5001[]']").val(data[0][5]);
+          $(e.target).parents('.card-body:first').find("input[name='a6001[]']").val(data[0][6]);
+          $(e.target).parents('.card-body:first').find("input[name='refill1[]']").val(data[0][7]);
         }
       }
     });
   });
 
-  $(document).on('change', 'select[name="pesanan"]', function(e) {
+  $(document).on('change', 'select[name="pesanan[]"]', function(e) {
     var optionSelected = $("option:selected", e.target);
     var valueSelected = e.target.value;
     $.ajax({
