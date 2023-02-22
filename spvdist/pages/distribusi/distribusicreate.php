@@ -296,6 +296,11 @@ include_once "../partials/scriptdatatables.php";
       $(`button#tah:eq(${l})`).remove();
       $(`.card`).find(`.card-header:eq(${l+2})`).append('<button type="button" name="hapus_tujuan" class="btn btn-danger btn-sm float-right" id="tah"><i class="fas fa-trash"></i></button>')
     }
+
+
+    $("html, body").animate({
+      scrollTop: $(document).height()
+    }, 0);
   });
 
 
