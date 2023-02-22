@@ -108,10 +108,10 @@ $stmt_karyawan = $db->prepare($select_karyawan);
             </div>
           </div>
         </div>
-        <div id="rownum" class="card">
+        <div class="card">
           <div class="card-header">
             <h4 id="new_tujuan" class="card-title">Tujuan 1</h4>
-            <button type="button" name="tambah_tujuan" class="btn btn-success btn-sm float-right">
+            <button type="button" name="tambah_tujuan" class="btn btn-success btn-sm float-right" id="tah">
               <i class="fa fa-plus"></i>
             </button>
           </div>
@@ -214,15 +214,15 @@ include_once "../partials/scriptdatatables.php";
   });
 
   var i = 0;
-  $('button[name="tambah_tujuan"]').on('click', function() {
+  var total = 0;
+  $(document).on('click', 'button[name="tambah_tujuan"]', function(e) {
     i++;
     var html = '';
-    html += '<div id="rowbaru">';
     html += '<div class="card">';
     html += '<div class="card-header">';
     html += `<h4 id="new_tujuan" class="card-title">Tujuan ${i+1}</h4>`;
-    html += '<button type="button" name="hapus_tujuan" class="btn btn-danger btn-sm float-right">';
-    html += '<i class="fa fa-trash"></i>';
+    html += '<button type="button" name="tambah_tujuan" class="btn btn-success btn-sm float-right" id="tah">';
+    html += '<i class="fas fa-plus"></i>';
     html += '</button>';
     html += '</div>';
     html += '<div class="card-body">';
@@ -288,10 +288,16 @@ include_once "../partials/scriptdatatables.php";
     html += '</div>';
     html += '</div>';
     html += '</div>';
-    html += '</div>';
 
     $('#new').append(html);
+
+    total = $('button#tah').length;
+    for (var l = 0; l < total - 1; l++) {
+      $(`button#tah:eq(${l})`).remove();
+      $(`.card`).find(`.card-header:eq(${l+2})`).append('<button type="button" name="hapus_tujuan" class="btn btn-danger btn-sm float-right" id="tah"><i class="fas fa-trash"></i></button>')
+    }
   });
+
 
   $(document).on('change', 'select[name="nama_pel_1"]', function(e) {
     var optionSelected = $("option:selected", e.target);
@@ -352,8 +358,8 @@ include_once "../partials/scriptdatatables.php";
     });
   });
 
-  $(document).on('click', 'button[name="hapus_tujuan"]', function() {
-    $(this).closest('#rowbaru').remove();
+  $(document).on('click', 'button[name="hapus_tujuan"]', function(e) {
+    $(e.target).closest('.card').remove();
     $('div div div div h4#new_tujuan').each(function(index) {
       $(this).text("Tujuan " + (index + 1))
     });
