@@ -8,10 +8,10 @@ class Database
   function __construct()
   {
     // 1357
-    $online = array("srv158.niagahoster.com", "u1796449_rianseptiadi", "Rtbcvyfhgnpozx1!", "u1796449_ayominumamanah");
+    $online = array("srv158.niagahoster.com", "u1796449_rianseptiadi", "Rtbcvyfhgnpozx1!", "u1796449_distribusiamanah");
     $offline = array("localhost", "root", "", "distribusiamanah");
 
-    $koneksi = 0; // online
+    $koneksi = 1; // 1 online, 2 offline
 
     if ($koneksi == 1) {
       $this->host = $online[0];
