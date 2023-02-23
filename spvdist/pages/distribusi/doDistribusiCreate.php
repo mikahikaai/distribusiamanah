@@ -114,6 +114,9 @@ if ($stmt_no_perjalanan->rowCount() == 0) {
 $no_perjalanan_new = "NJ/" . date('Y/') . date('m/') . $no_perjalanan;
 // akhir generate nomor perjalanan
 
+// generate nomor resi
+// akhir generate nomor resi
+
 // insert data distribusi ke db
 $insertsql = "INSERT INTO distribusi_anggota (no_perjalanan, id_plat, driver, helper_1, helper_2, jam_berangkat, estimasi_jam_datang) VALUES (?,?,?,?,?,?,?)";
 $helper_1 = !empty($_POST['helper_1']) ? $_POST['helper_1'] : null;
@@ -131,10 +134,12 @@ $sukses = true;
 
 $last_id = $db->lastInsertId();
 for ($i = 0; $i < $jumlah_distributor; $i++) {
-  $insert_distribusi_barang = "INSERT INTO distribusi_barang (id_distribusi_anggota, id_order) VALUES (?,?)";
+  $no_resi = "AMNH" . str_pad(hexdec(uniqid()), 17, '0', STR_PAD_LEFT);
+  $insert_distribusi_barang = "INSERT INTO distribusi_barang (id_distribusi_anggota, no_resi, id_order) VALUES (?,?,?)";
   $stmt_insert_distribusi_barang = $db->prepare($insert_distribusi_barang);
   $stmt_insert_distribusi_barang->bindParam(1, $last_id);
-  $stmt_insert_distribusi_barang->bindParam(2, $array_group[$i][2]);
+  $stmt_insert_distribusi_barang->bindParam(2, $no_resi);
+  $stmt_insert_distribusi_barang->bindParam(3, $array_group[$i][2]);
   $stmt_insert_distribusi_barang->execute();
 }
 
