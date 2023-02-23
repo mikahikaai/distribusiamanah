@@ -14,6 +14,34 @@ $select_karyawan = "SELECT * FROM karyawan WHERE status_keaktifan = 'AKTIF' AND 
 $stmt_karyawan = $db->prepare($select_karyawan);
 // $stmt_karyawan->execute();
 
+if (isset($_GET['id'])) {
+
+  $main_select = "SELECT *, k1.nama supir, k2.nama helper1, k3.nama helper2, da.id id_distribusi_anggota
+FROM distribusi_anggota da LEFT JOIN distribusi_barang db on da.id = db.id_distribusi_anggota
+INNER JOIN armada a ON a.id = da.id_plat
+LEFT JOIN karyawan k1 ON k1.id = da.driver
+LEFT JOIN karyawan k2 ON k2.id = da.helper_1
+LEFT JOIN karyawan k3 ON k3.id = da.helper_2
+INNER JOIN pemesanan p ON p.id = db.id_order
+INNER JOIN distributor d ON d.id = p.id_distro
+WHERE da.id = ?";
+  $stmt_da = $db->prepare($main_select);
+  $stmt_da->bindParam(1, $_GET['id']);
+  $stmt_da->execute();
+
+  $row_da = $stmt_da->fetchAll(PDO::FETCH_ASSOC);
+
+  // $select_pesanan = "SELECT * FROM distribusi_barang db INNER JOIN pemesanan p on p.id = db.id_order WHERE db.id_distribusi_anggota = ?";
+  // $stmt_db = $db->prepare($select_pesanan);
+  // $stmt_db->bindParam(1, $_GET['id']);
+
+  // var_dump($row_db);
+  // die();
+
+  $select_pesanan = "SELECT * FROM pemesanan p WHERE id_distro = ?";
+  $stmt_db = $db->prepare($select_pesanan);
+}
+
 ?>
 <!-- Content Header (Page header) -->
 <div class="content-header">
@@ -26,7 +54,7 @@ $stmt_karyawan = $db->prepare($select_karyawan);
         <ol class="breadcrumb float-sm-right">
           <li class="breadcrumb-item"><a href="?page=home">Home</a></li>
           <li class="breadcrumb-item"><a href="?page=distribusiread">Distribusi</a></li>
-          <li class="breadcrumb-item active">Tambah Distribusi</li>
+          <li class="breadcrumb-item active">Detail Distribusi</li>
         </ol>
       </div><!-- /.col -->
     </div><!-- /.row -->
@@ -38,82 +66,81 @@ $stmt_karyawan = $db->prepare($select_karyawan);
 <div class="content">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Data Tambah Distribusi</h3>
+      <h3 class="card-title">Data Detail Distribusi</h3>
       <a href="?page=distribusiread" class="btn btn-danger btn-sm float-right">
         <i class="fa fa-arrow-left"></i> Kembali
       </a>
     </div>
     <div class="card-body">
-      <form action="?page=doDistribusiCreate" method="post">
-        <div class="form-group">
-          <label for="id_plat">Armada</label>
-          <select name="id_plat" class="form-control" required>
-            <option value="">--Pilih Armada--</option>
-            <?php
-            $stmt_armada->execute();
-            while ($row_armada = $stmt_armada->fetch(PDO::FETCH_ASSOC)) {
 
-              echo "<option value=\"" . $row_armada['id'] . "\">" . $row_armada['plat'], " - ", $row_armada['jenis_mobil'] . "</option>";
-            }
-            ?>
-          </select>
+      <div class="form-group">
+        <label for="id_plat">Armada</label>
+        <select name="id_plat" class="form-control" required>
+          <option value="">--Pilih Armada--</option>
+          <?php
+          $stmt_armada->execute();
+          while ($row_armada = $stmt_armada->fetch(PDO::FETCH_ASSOC)) {
+            $selected_armada = $row_armada['id'] ==  $row_da[0]['id_plat'] ? 'selected' : ''; ?>
+            <option <?= $selected_armada ?> value="<?= $row_armada['id'] ?>"><?= $row_armada['plat'] ?> - <?= $row_armada['jenis_mobil'] ?></option>
+          <?php } ?>
+        </select>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Tim Pengirim</h4>
         </div>
-        <div class="card">
-          <div class="card-header">
-            <h4 class="card-title">Tim Pengirim</h4>
-          </div>
-          <div class="card-body">
-            <div class="form-group">
-              <div class="row">
-                <div class="col-md-4">
-                  <label for="driver">Supir</label>
-                  <select name="driver" class="form-control" required>
-                    <option value="">--Pilih Nama Supir--</option>
-                    <?php
-                    $stmt_karyawan->execute();
-                    while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
-
-                      echo "<option value=\"" . $row_karyawan['id'] . "\">" . $row_karyawan['nama'], " - ", $row_karyawan['sim'] . "</option>";
-                    }
-                    ?>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label for="helper_1">Helper 1</label>
-                  <select name="helper_1" class="form-control">
-                    <option value="">--Pilih Nama Helper 1--</option>
-                    <?php
-                    $stmt_karyawan->execute();
-                    while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
-
-                      echo "<option value=\"" . $row_karyawan['id'] . "\">" . $row_karyawan['nama'], " - ", $row_karyawan['sim'] . "</option>";
-                    }
-                    ?>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label for="helper_2">Helper 2</label>
-                  <select name="helper_2" class="form-control">
-                    <option value="">--Pilih Nama Helper 2--</option>
-                    <?php
-                    $stmt_karyawan->execute();
-                    while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
-
-                      echo "<option value=\"" . $row_karyawan['id'] . "\">" . $row_karyawan['nama'], " - ", $row_karyawan['sim'] . "</option>";
-                    }
-                    ?>
-                  </select>
-                </div>
+        <div class="card-body">
+          <div class="form-group">
+            <div class="row">
+              <div class="col-md-4">
+                <label for="driver">Supir</label>
+                <select name="driver" class="form-control" required>
+                  <option value="">--Pilih Nama Supir--</option>
+                  <?php
+                  $stmt_karyawan->execute();
+                  while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
+                    $selected_karyawan = $row_karyawan['id'] ==  $row_da[0]['driver'] ? 'selected' : ''; ?>
+                    <option <?= $selected_karyawan ?> value="<?= $row_karyawan['id'] ?>"><?= $row_karyawan['nama'] ?> - <?= $row_karyawan['sim'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="helper_1">Helper 1</label>
+                <select name="helper_1" class="form-control">
+                  <option value="">--Pilih Nama Helper 1--</option>
+                  <?php
+                  $stmt_karyawan->execute();
+                  while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
+                    $selected_karyawan = $row_karyawan['id'] ==  $row_da[0]['helper_1'] ? 'selected' : ''; ?>
+                    <option <?= $selected_karyawan ?> value="<?= $row_karyawan['id'] ?>"><?= $row_karyawan['nama'] ?> - <?= $row_karyawan['sim'] ?></option>
+                  <?php } ?>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="helper_2">Helper 2</label>
+                <select name="helper_2" class="form-control">
+                  <option value="">--Pilih Nama Helper 2--</option>
+                  <?php
+                  $stmt_karyawan->execute();
+                  while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
+                    $selected_karyawan = $row_karyawan['id'] ==  $row_da[0]['helper_2'] ? 'selected' : ''; ?>
+                    <option <?= $selected_karyawan ?> value="<?= $row_karyawan['id'] ?>"><?= $row_karyawan['nama'] ?> - <?= $row_karyawan['sim'] ?></option>
+                  <?php } ?>
+                </select>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <?php
+      $jumlah_data = sizeof($row_da);
+      // var_dump($jumlah_data);
+      // die();
+      for ($i = 0; $i < $jumlah_data; $i++) { ?>
         <div class="card">
           <div class="card-header">
-            <h4 id="new_tujuan" class="card-title">Tujuan 1</h4>
-            <button type="button" name="tambah_tujuan" class="btn btn-success btn-sm float-right" id="tah">
-              <i class="fa fa-plus"></i>
-            </button>
+            <h4 id="new_tujuan" class="card-title">Tujuan <?= $i + 1 ?></h4>
           </div>
           <div class="card-body">
             <div class="row">
@@ -121,13 +148,12 @@ $stmt_karyawan = $db->prepare($select_karyawan);
                 <div class="form-group">
                   <label for="nama_pel_1[]">Distributor</label>
                   <select name="nama_pel_1[]" class="form-control" required>
-                    <option value="">--Pilih Nama Distributor--</option>
                     <?php
                     $stmt_distro->execute();
                     while ($row_distro = $stmt_distro->fetch(PDO::FETCH_ASSOC)) {
-
-                      echo "<option value=\"" . $row_distro['id'] . "\">" . $row_distro['nama'], " - ", $row_distro['id_da'], " (", $row_distro['jarak'], " km)" . "</option>";
-                    }
+                      $selected_distro = $row_distro['id'] ==  $row_da[$i]['id_distro'] ? 'selected' : ''; ?>
+                      <option <?= $selected_distro ?> value="<?= $row_distro['id'] ?>"><?= $row_distro['nama'] ?> - <?= $row_distro['id_da'] ?> (<?= $row_distro['jarak'] ?> km)</option>
+                    <?php }
                     ?>
                   </select>
                 </div>
@@ -136,14 +162,21 @@ $stmt_karyawan = $db->prepare($select_karyawan);
                 <div class="form-group">
                   <label for="pesanan[]">Pesanan</label>
                   <select id="listorder" name="pesanan[]" class="form-control">
-                    <option value="">--Pilih Order--</option>
+                    <?php
+                    $stmt_db->bindParam(1, $row_da[$i]['id_distro']);
+                    $stmt_db->execute();
+                    while ($row_db = $stmt_db->fetch(PDO::FETCH_ASSOC)) {
+                      $selected_pesanan = $row_db['id'] ==  $row_da[$i]['id_order'] ? 'selected' : ''; ?>
+                      <option <?= $selected_pesanan ?> value="<?= $row_db['id'] ?>"><?= $row_db['nomor_order'] ?></option>
+                    <?php }
+                    ?>
                   </select>
                 </div>
               </div>
               <div class="col-md-4" id="xyz3">
                 <div class="form-group">
                   <label for="tgl_order">Tanggal Order</label>
-                  <input type="text" class="form-control" name="tgl_order" readonly>
+                  <input type="text" class="form-control" name="tgl_order" value="<?= tanggal_indo($row_da[$i]['tgl_order']) ?>" readonly>
                 </div>
               </div>
             </div>
@@ -152,54 +185,48 @@ $stmt_karyawan = $db->prepare($select_karyawan);
               <div class="col-md">
                 <div class="form-group">
                   <label for="cup1[]">Muatan Cup</label>
-                  <input type="number" name="cup1[]" class="form-control" readonly>
+                  <input type="number" name="cup1[]" class="form-control" value="<?= $row_da[$i]['cup'] ?>" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a3301">Muatan A330</label>
-                  <input type="number" name="a3301[]" class="form-control" readonly>
+                  <input type="number" name="a3301[]" class="form-control" value="<?= $row_da[$i]['a330'] ?>" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a5001">Muatan A500</label>
-                  <input type="number" name="a5001[]" class="form-control" readonly>
+                  <input type="number" name="a5001[]" class="form-control" value="<?= $row_da[$i]['a500'] ?>" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="a6001">Muatan A600</label>
-                  <input type="number" name="a6001[]" class="form-control" readonly>
+                  <input type="number" name="a6001[]" class="form-control" value="<?= $row_da[$i]['a600'] ?>" readonly>
                 </div>
               </div>
               <div class="col-md">
                 <div class="form-group">
                   <label for="refill1">Muatan Refill</label>
-                  <input type="number" name="refill1[]" class="form-control" readonly>
+                  <input type="number" name="refill1[]" class="form-control" value="<?= $row_da[$i]['refill'] ?>" readonly>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      <?php } ?>
+      <div id="new"></div>
 
-        <div id="new"></div>
-
-        <div class="form-group mt-3">
-          <label for="jam_berangkat">Jam Keberangkatan</label>
-          <div class="row">
-            <div class="col-md-4">
-              <input id='datetimepicker1' type='text' class='form-control' data-td-target='#datetimepicker1' placeholder="dd/mm/yyyy hh:mm" name="jam_berangkat" required>
-            </div>
+      <div class="form-group mt-3">
+        <label for="jam_berangkat">Jam Keberangkatan</label>
+        <div class="row">
+          <div class="col-md-4">
+            <input id='datetimepicker1' type='text' class='form-control' data-td-target='#datetimepicker1' placeholder="dd/mm/yyyy hh:mm" name="jam_berangkat" value="<?= tanggal_indo($row_da[0]['jam_berangkat']) ?>" required>
           </div>
         </div>
-        <a href="?page=distribusiread" class="btn btn-danger btn-sm float-right">
-          <i class="fa fa-times"></i> Batal
-        </a>
-        <button type="submit" name="button_create" class="btn btn-success btn-sm float-right mr-1">
-          <i class="fa fa-save"></i> Simpan
-        </button>
-      </form>
+      </div>
+
     </div>
   </div>
 </div>
@@ -209,18 +236,26 @@ include_once "../partials/scriptdatatables.php";
 ?>
 
 <script>
-  $("#datetimepicker1").keydown(function(event) {
-    return false;
+  $(document).ready(function() {
+
+    $("*").keydown(function(event) {
+      return false;
+    });
+
+    $('select').prop('disabled', true);
+    $('input').prop('disabled', true);
+
+    // });
+
   });
 
-  var i = 0;
-  var total = 0;
+  var i = $('button#tah').length;
   $(document).on('click', 'button[name="tambah_tujuan"]', function(e) {
     i++;
     var html = '';
     html += '<div class="card">';
     html += '<div class="card-header">';
-    html += `<h4 id="new_tujuan" class="card-title">Tujuan ${i+1}</h4>`;
+    html += `<h4 id="new_tujuan" class="card-title">Tujuan ${i}</h4>`;
     html += '<button type="button" name="tambah_tujuan" class="btn btn-success btn-sm float-right" id="tah">';
     html += '<i class="fas fa-plus"></i>';
     html += '</button>';
@@ -290,8 +325,7 @@ include_once "../partials/scriptdatatables.php";
     html += '</div>';
 
     $('#new').append(html);
-
-    total = $('button#tah').length;
+    var total = $('button#tah').length;
     for (var l = 0; l < total - 1; l++) {
       $(`button#tah:eq(${l})`).remove();
       $(`.card`).find(`.card-header:eq(${l+2})`).append('<button type="button" name="hapus_tujuan" class="btn btn-danger btn-sm float-right" id="tah"><i class="fas fa-trash"></i></button>')

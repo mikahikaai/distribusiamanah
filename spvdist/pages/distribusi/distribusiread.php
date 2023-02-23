@@ -18,12 +18,28 @@ if (isset($_SESSION['hasil'])) {
       <h5><i class="icon fas fa-times"></i>Terjadi Kesalahan</h5>
       <?= $_SESSION['pesan'] ?>
     </div>
-<?php }
+  <?php }
   unset($_SESSION['hasil']);
   unset($_SESSION['pesan']);
-}
-
-?>
+} elseif (isset($_SESSION['hasil_delete'])) {
+  if ($_SESSION['hasil_delete']) {
+  ?>
+    <div id='hasil_delete'></div>
+  <?php }
+  unset($_SESSION['hasil_delete']);
+} elseif (isset($_SESSION['hasil_create'])) {
+  if ($_SESSION['hasil_create']) {
+  ?>
+    <div id='hasil_create'></div>
+  <?php }
+  unset($_SESSION['hasil_create']);
+} elseif (isset($_SESSION['hasil_update'])) {
+  if ($_SESSION['hasil_update']) {
+  ?>
+    <div id='hasil_update'></div>
+<?php }
+  unset($_SESSION['hasil_update']);
+} ?>
 
 <div class="content-header">
   <div class="container-fluid">
@@ -122,13 +138,13 @@ if (isset($_SESSION['hasil'])) {
               <td><?= $jam_datang ?></td>
               <td><?= $row['status'] ?></td>
               <td>
-                <a href="?page=detaildistribusi&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-success btn-sm mr-1">
+                <a href="?page=distribusidetail&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-success btn-sm mr-1">
                   <i class="fa fa-eye"></i> Lihat
                 </a>
-                <a href="?page=updatedistribusi&id=<?= $row['id_distribusi_barang']; ?>" class="btn btn-primary btn-sm mr-1">
+                <a href="?page=distribusiupdate&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-primary btn-sm mr-1">
                   <i class="fa fa-edit"></i> Ubah
                 </a>
-                <a href="?page=deletedistribusi&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-danger btn-sm mr-1">
+                <a href="?page=distribusidelete&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-danger btn-sm mr-1" id="distribusidelete">
                   <i class="fa fa-trash"></i> Hapus
                 </a>
               </td>
@@ -158,18 +174,19 @@ include_once "../partials/scriptdatatables.php";
     });
   });
 
-  $('a#distribusibatalvalidasi').click(function(e) {
+  $('a#distribusidelete').click(function(e) {
     e.preventDefault();
     var urlToRedirect = e.currentTarget.getAttribute('href');
     //use currentTarget because the click may be on the nested i tag and not a tag causing the href to be empty
     Swal.fire({
       title: 'Apakah anda yakin?',
+      text: "Semua data yang memiliki nomor perjalanan yang sama akan terhapus!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      cancelButtonText: 'Keluar',
-      confirmButtonText: 'Ya'
+      cancelButtonText: 'Batal',
+      confirmButtonText: 'Hapus'
     }).then((result) => {
       if (result.isConfirmed) {
         window.location = urlToRedirect;
@@ -177,17 +194,24 @@ include_once "../partials/scriptdatatables.php";
     })
   });
 
-  if ($('div#hasil_validasi').length) {
+  if ($('div#hasil_delete').length) {
     Swal.fire({
-      title: 'Sukses!',
-      text: 'Data berhasil divalidasi',
+      title: 'Deleted!',
+      text: 'Data berhasil dihapus',
       icon: 'success',
       confirmButtonText: 'OK'
     })
-  } else if ($('div#hasil_batal').length) {
+  } else if ($('div#hasil_create').length) {
     Swal.fire({
-      title: 'Sukses!',
-      text: 'Validasi berhasil dibatalkan',
+      title: 'Created!',
+      text: 'Data berhasil disimpan',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    })
+  } else if ($('div#hasil_update').length) {
+    Swal.fire({
+      title: 'Updated!',
+      text: 'Data berhasil diubah',
       icon: 'success',
       confirmButtonText: 'OK'
     })

@@ -2,6 +2,11 @@
 $database = new Database;
 $db = $database->getConnection();
 
+$delete_sql = "DELETE FROM distribusi_anggota WHERE id=?";
+$stmt_delete = $db->prepare($delete_sql);
+$stmt_delete->bindParam(1, $_GET['id']);
+$stmt_delete->execute();
+
 // <hitung jumlah tim pengirim yang berangkat>
 $array_tim_pengirim = array($_POST['driver'], !empty($_POST['helper_1']) ? $_POST['helper_1'] : NULL, !empty($_POST['helper_2']) ? $_POST['helper_2'] : NULL);
 $jumlah_tim_pengirim = count(array_filter($array_tim_pengirim)) ?? 0;

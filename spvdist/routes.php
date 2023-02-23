@@ -18,8 +18,24 @@ if (isset($_GET['page'])) {
       file_exists('pages/distribusi/distribusicreate.php') ? include 'pages/distribusi/distribusicreate.php' : include '../pages/404.php';
       $title = 'Distribusi';
       break;
+    case 'distribusiupdate':
+      file_exists('pages/distribusi/distribusiupdate.php') ? include 'pages/distribusi/distribusiupdate.php' : include '../pages/404.php';
+      $title = 'Distribusi';
+      break;
+    case 'distribusidelete':
+      file_exists('pages/distribusi/distribusidelete.php') ? include 'pages/distribusi/distribusidelete.php' : include '../pages/404.php';
+      $title = 'Distribusi';
+      break;
+    case 'distribusidetail':
+      file_exists('pages/distribusi/distribusidetail.php') ? include 'pages/distribusi/distribusidetail.php' : include '../pages/404.php';
+      $title = 'Distribusi';
+      break;
     case 'doDistribusiCreate':
       file_exists('pages/distribusi/doDistribusiCreate.php') ? include 'pages/distribusi/doDistribusiCreate.php' : include '../pages/404.php';
+      $title = 'Distribusi';
+      break;
+    case 'doDistribusiUpdate':
+      file_exists('pages/distribusi/doDistribusiUpdate.php') ? include 'pages/distribusi/doDistribusiUpdate.php' : include '../pages/404.php';
       $title = 'Distribusi';
       break;
     case 'distribusivalidasi':
