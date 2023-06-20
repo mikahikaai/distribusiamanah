@@ -93,3 +93,7 @@ if (isset($_POST['button_edit'])) {
   </div>
 </div>
 <!-- /.content -->
+
+<?php
+include_once "../partials/scriptdatatables.php";
+?>

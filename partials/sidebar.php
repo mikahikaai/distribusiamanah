@@ -269,7 +269,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item" id="rekapitulasi">
+          <!-- <li class="nav-item" id="rekapitulasi">
             <a href="#" class="nav-link" id="link_rekapitulasi">
               <i class="nav-icon fas fa-paperclip"></i>
               <p>
@@ -315,7 +315,7 @@
                 </a>
               </li>
             </ul>
-          </li>
+          </li> -->
           <li class="nav-item" id='master_data'>
             <a href="#" class="nav-link" id='link_master_data'>
               <i class="fas fa-th nav-icon"></i>
@@ -342,7 +342,7 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item" id='master_distribusi'>
+          <!-- <li class="nav-item" id='master_distribusi'>
             <a href="#" class="nav-link" id='link_master_distribusi'>
               <i class="fas fa-truck nav-icon"></i>
               <p>
@@ -362,7 +362,7 @@
                 </a>
               </li>
             </ul>
-          </li>
+          </li> -->
         <?php } else if ($_SESSION['jabatan'] == "SPVDISTRIBUSI") {
         ?>
           <li class="nav-item" id="rekapitulasi">
@@ -422,11 +422,11 @@
                   <p>Distribusi</p>
                 </a>
               </li>
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a href="?page=rangeprestasikaryawan" class="nav-link" id="prestasikaryawan"><i class="far fa-circle nav-icon"></i>
                   <p>Prestasi Keberangkatan</p>
                 </a>
-              </li>
+              </li> -->
             </ul>
           </li>
         <?php }; ?>
