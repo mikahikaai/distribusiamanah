@@ -23,6 +23,9 @@
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Data Distributor</h3>
+      <a href="report/reportdistributor.php" target="_blank" class="btn btn-warning btn-sm float-right">
+        <i class="fa fa-file-pdf"></i> Export PDF
+      </a>
     </div>
     <div class="card-body">
       <table id="mytable" class="table table-bordered" style="white-space: nowrap; table-layout: fixed;">

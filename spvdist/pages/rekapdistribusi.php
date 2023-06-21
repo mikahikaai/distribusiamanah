@@ -31,9 +31,9 @@ $tgl_rekap_akhir = $_SESSION['tgl_rekap_akhir_distribusi']->format('Y-m-d H:i:s'
   <div class="card">
     <div class="card-header">
       <h3 class="card-title font-weight-bold">Data Rekap Distribusi<br>Periode : <?= tanggal_indo($_SESSION['tgl_rekap_awal_distribusi']->format('Y-m-d')) . " sd " . tanggal_indo($_SESSION['tgl_rekap_akhir_distribusi']->format('Y-m-d')) ?></h3>
-      <!-- <a href="report/reportrekapdistribusi.php" target="_blank" class="btn btn-warning btn-sm float-right">
+      <a href="report/reportrekapdistribusi.php" target="_blank" class="btn btn-warning btn-sm float-right">
         <i class="fa fa-file-pdf"></i> Export PDF
-      </a> -->
+      </a>
     </div>
     <div class="card-body">
       <table id="mytable" class="table table-bordered table-hover" style="white-space: nowrap; background-color: white; table-layout: fixed;">
@@ -46,23 +46,16 @@ $tgl_rekap_akhir = $_SESSION['tgl_rekap_akhir_distribusi']->format('Y-m-d H:i:s'
             <th>Nama Driver</th>
             <th>Nama Helper 1</th>
             <th>Nama Helper 2</th>
-            <th>Tujuan 1</th>
-            <th>Tujuan 2</th>
-            <th>Tujuan 3</th>
-            <th>Bongkar</th>
-            <th>Total Cup</th>
-            <th>Total A330</th>
-            <th>Total A500</th>
-            <th>Total A600</th>
-            <th>Total Refill</th>
+            <th>Tujuan</th>
+            <th>Cup</th>
+            <th>A330</th>
+            <th>A500</th>
+            <th>A600</th>
+            <th>Refill</th>
             <th>Jam Berangkat</th>
             <th>Estimasi Jam Datang</th>
             <th>Estimasi Lama Perjalanan</th>
             <th>Jam Datang</th>
-            <th>Keterangan</th>
-            <th>Tanggal Validasi</th>
-            <th>Validator</th>
-            <th>Status</th>
             <th class="d-block">Opsi</th>
           </tr>
         </thead>
@@ -72,16 +65,15 @@ $tgl_rekap_akhir = $_SESSION['tgl_rekap_akhir_distribusi']->format('Y-m-d H:i:s'
           // var_dump($_SESSION['status_kedatangan_distribusi']);
           // die();
 
-          $selectsql = "SELECT a.*, d.*, k1.nama supir, k1.upah_borongan usupir1, k2.nama helper1, k2.upah_borongan uhelper2, k3.nama helper2, k3.upah_borongan uhelper2, v.nama validator, do1.nama distro1, do1.jarak jdistro1, do2.nama distro2, do2.jarak jdistro2, do3.nama distro3, do3.jarak jdistro3
-              FROM distribusi d INNER JOIN armada a on d.id_plat = a.id
-              LEFT JOIN karyawan k1 on d.driver = k1.id
-              LEFT JOIN karyawan k2 on d.helper_1 = k2.id
-              LEFT JOIN karyawan k3 on d.helper_2 = k3.id
-              LEFT JOIN karyawan v on d.validasi_oleh = v.id
-              LEFT JOIN distributor do1 on d.nama_pel_1 = do1.id
-              LEFT JOIN distributor do2 on d.nama_pel_2 = do2.id
-              LEFT JOIN distributor do3 on d.nama_pel_3 = do3.id
-              WHERE (IF (? = 'all',d.jam_datang IS NULL OR d.jam_datang IS NOT NULL, IF(? = '1',d.jam_datang IS NOT NULL, d.jam_datang IS NULL))) AND (d.driver = IF (? = 'all', d.driver, ?) OR d.helper_1 = IF (? = 'all', d.helper_1, ?) OR d.helper_2 = IF (? = 'all', d.helper_2, ?)) AND (d.jam_berangkat BETWEEN ? AND ?)
+          $selectsql = "SELECT *, k1.nama supir, k2.nama helper1, k3.nama helper2, da.id id_distribusi_anggota, d.nama distro
+          FROM distribusi_anggota da LEFT JOIN distribusi_barang db on da.id = db.id_distribusi_anggota
+          INNER JOIN armada a ON a.id = da.id_plat
+          LEFT JOIN karyawan k1 ON k1.id = da.driver
+          LEFT JOIN karyawan k2 ON k2.id = da.helper_1
+          LEFT JOIN karyawan k3 ON k3.id = da.helper_2
+          INNER JOIN pemesanan p ON p.id = db.id_order
+          INNER JOIN distributor d ON d.id = p.id_distro
+              WHERE (IF (? = 'all',da.jam_datang IS NULL OR da.jam_datang IS NOT NULL, IF(? = '1',da.jam_datang IS NOT NULL, da.jam_datang IS NULL))) AND (da.driver = IF (? = 'all', da.driver, ?) OR da.helper_1 = IF (? = 'all', da.helper_1, ?) OR da.helper_2 = IF (? = 'all', da.helper_2, ?)) AND (da.jam_berangkat BETWEEN ? AND ?)
               ORDER BY tanggal DESC; ";
           $stmt = $db->prepare($selectsql);
           $stmt->bindParam(1, $_SESSION['status_kedatangan_distribusi']);
@@ -103,29 +95,9 @@ $tgl_rekap_akhir = $_SESSION['tgl_rekap_akhir_distribusi']->format('Y-m-d H:i:s'
             $supir = $row['supir'] == NULL ? '-' : $row['supir'];
             $helper1 = $row['helper1'] == NULL ? '-' : $row['helper1'];
             $helper2 = $row['helper2'] == NULL ? '-' : $row['helper2'];
-            $distro1 = $row['distro1'] == NULL ? '-' : $row['distro1'];
-            $distro2 = $row['distro2'] == NULL ? '-' : $row['distro2'];
-            $distro3 = $row['distro3'] == NULL ? '-' : $row['distro3'];
-            $bongkar = $row['bongkar'] == 0 ? 'TIDAK' : 'YA';
-            $keterangan = $row['keterangan'] == NULL ? '-' : $row['keterangan'];
-            $jam_datang = $row['jam_datang'] == NULL ? '-' : tanggal_indo($row['jam_datang']);
-            $tgl_validasi = $row['tgl_validasi'] == NULL ? '-' : tanggal_indo($row['tgl_validasi']);
-            $validasi_oleh = $row['validator'] == NULL ? '-' : $row['validator'];
+            $distro1 = $row['distro'] == NULL ? '-' : $row['distro'];
+            $jam_datang = $row['jam_datang'] == NULL ? 'BELUM DATANG' : tanggal_indo($row['jam_datang']);
             $estimasi_lama_perjalanan = date_diff(date_create($row['jam_berangkat']), date_create($row['estimasi_jam_datang']))->format('%d Hari %h Jam %i Menit %s Detik');
-            switch ($row['status']) {
-              case '0':
-                $status = 'Belum Divalidasi';
-                break;
-              case '1':
-                $status = 'Divalidasi';
-                break;
-              case '2':
-                $status = 'Perlu ACC Uang makan';
-                break;
-              case '3':
-                $status = 'Tidak ACC';
-                break;
-            }
           ?>
             <tr>
               <td><?= $no++ ?></td>
@@ -136,27 +108,15 @@ $tgl_rekap_akhir = $_SESSION['tgl_rekap_akhir_distribusi']->format('Y-m-d H:i:s'
               <td><?= $helper1 ?></td>
               <td><?= $helper2 ?></td>
               <td><?= $distro1 ?></td>
-              <td><?= $distro2 ?></td>
-              <td><?= $distro3 ?></td>
-              <td><?= $bongkar ?></td>
-              <td><?= $row['cup1'] + $row['cup2'] + $row['cup3'] ?></td>
-              <td><?= $row['a3301'] + $row['a3302'] + $row['a3303'] ?></td>
-              <td><?= $row['a5001'] + $row['a5002'] + $row['a5003'] ?></td>
-              <td><?= $row['a6001'] + $row['a6002'] + $row['a6003'] ?></td>
-              <td><?= $row['refill1'] + $row['refill2'] + $row['refill3'] ?></td>
+              <td><?= $row['cup'] ?></td>
+              <td><?= $row['a330'] ?></td>
+              <td><?= $row['a500'] ?></td>
+              <td><?= $row['a600'] ?></td>
+              <td><?= $row['refill']?></td>
               <td><?= tanggal_indo($row['jam_berangkat']) ?></td>
               <td><?= tanggal_indo($row['estimasi_jam_datang']) ?></td>
               <td><?= $estimasi_lama_perjalanan ?></td>
               <td><?= $jam_datang ?></td>
-              <td><?= $keterangan ?></td>
-              <td><?= $tgl_validasi ?></td>
-              <td><?= $validasi_oleh ?></td>
-              <td>
-                <?php
-                if ($row['status'] == '1') { ?>
-                  <span class="text-success"><i class="fa fa-check"></i> Tervalidasi</span>
-                <?php } ?>
-              </td>
               <td>
                 <a href="?page=detaildistribusi&id=<?= $row['id']; ?>" class="btn btn-success btn-sm mr-1">
                   <i class="fa fa-eye"></i> Lihat

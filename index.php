@@ -21,7 +21,7 @@ if (isset($_SESSION['errorakses'])) {
   $errorakses = false;
 }
 
-$errorlogin = false;
+
 
 if (isset($_COOKIE['id']) && isset($_COOKIE['keylog'])) {
   $loginsql = "SELECT * FROM karyawan WHERE id=?";
@@ -53,6 +53,7 @@ if (isset($_SESSION['jabatan'])) {
 }
 
 if (isset($_POST['login'])) {
+  $_SESSION['errorlogin'] = false;
   $loginsql = "SELECT * FROM karyawan WHERE username=? and password=?";
   $stmt = $db->prepare($loginsql);
   $stmt->bindParam(1, $_POST['username']);
@@ -89,12 +90,20 @@ if (isset($_POST['login'])) {
       die();
     }
   } else {
-    $errorlogin = true;
+    $_SESSION['errorlogin'] = true;
+    if (isset($_SESSION['errorlogin'])) {
+      if ($_SESSION['errorlogin']) {
+?>
+        <div id='errorlogin'></div>
+<?php
+        unset($_SESSION['errorlogin']);
+      }
+    }
   }
 }
 
 
-// var_dump($errorlogin);
+// var_dump(isset($_SESSION['errorlogin']));
 // die();
 ?>
 
@@ -317,11 +326,24 @@ if (isset($_POST['login'])) {
       </div>
     </div>
   </footer>
-  <script>
-    AOS.init({
-      once: true
-    });
-  </script>
 </body>
 
 </html>
+
+<script src="./plugins/sweetalert2/sweetalert2.all.min.js"></script>
+<script src="./plugins/jquery/jquery.min.js"></script>
+
+<script>
+  AOS.init({
+    once: true
+  });
+
+  if ($('div#errorlogin').length) {
+    Swal.fire({
+      title: 'Login Gagal',
+      text: 'Username atau Password Salah!',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    })
+  };
+</script>

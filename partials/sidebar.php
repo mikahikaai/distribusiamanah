@@ -325,7 +325,7 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 <a href="?page=armadaread" class="nav-link" id='armada'><i class="far fa-circle nav-icon"></i>
                   <p>Armada</p>
                 </a>
@@ -334,7 +334,7 @@
                 <a href="?page=karyawanread" class="nav-link" id='karyawan'><i class="far fa-circle nav-icon"></i>
                   <p>Karyawan</p>
                 </a>
-              </li>
+              </li> -->
               <li class="nav-item">
                 <a href="?page=distributorread" class="nav-link" id="distributor"><i class="far fa-circle nav-icon"></i>
                   <p>Distributor</p>

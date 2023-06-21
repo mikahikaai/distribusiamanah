@@ -10,6 +10,26 @@ if (isset($_GET['page'])) {
       file_exists('pages/home.php') ? include 'pages/home.php' : include '../pages/404.php';
       $title = 'Home';
       break;
+    case 'armadaread':
+      file_exists('pages/armada/armadaread.php') ? include 'pages/armada/armadaread.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
+    case 'armadacreate':
+      file_exists('pages/armada/armadacreate.php') ? include 'pages/armada/armadacreate.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
+    case 'armadaupdate':
+      file_exists('pages/armada/armadaupdate.php') ? include 'pages/armada/armadaupdate.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
+    case 'armadadelete':
+      file_exists('pages/armada/armadadelete.php') ? include 'pages/armada/armadadelete.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
+    case 'armadadetail':
+      file_exists('pages/armada/armadadetail.php') ? include 'pages/armada/armadadetail.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
     case 'distribusiread':
       file_exists('pages/distribusi/distribusiread.php') ? include 'pages/distribusi/distribusiread.php' : include '../pages/404.php';
       $title = 'Distribusi';
@@ -46,14 +66,6 @@ if (isset($_GET['page'])) {
       file_exists('pages/distribusi/distribusibatalvalidasi.php') ? include 'pages/distribusi/distribusibatalvalidasi.php' : include '../pages/404.php';
       $title = 'Distribusi';
       break;
-    case 'armadaread':
-      file_exists('pages/armada/armadaread.php') ? include 'pages/armada/armadaread.php' : include '../pages/404.php';
-      $title = 'Armada';
-      break;
-    case 'armadadetail':
-      file_exists('pages/armada/armadadetail.php') ? include 'pages/armada/armadadetail.php' : include '../pages/404.php';
-      $title = 'Armada';
-      break;
     case 'distributorread':
       file_exists('pages/distributor/distributorread.php') ? include 'pages/distributor/distributorread.php' : include '../pages/404.php';
       $title = 'Distributor';
@@ -64,6 +76,18 @@ if (isset($_GET['page'])) {
       break;
     case 'karyawanread':
       file_exists('pages/karyawan/karyawanread.php') ? include 'pages/karyawan/karyawanread.php' : include '../pages/404.php';
+      $title = 'Karyawan';
+      break;
+    case 'karyawancreate':
+      file_exists('pages/karyawan/karyawancreate.php') ? include 'pages/karyawan/karyawancreate.php' : include '../pages/404.php';
+      $title = 'Karyawan';
+      break;
+    case 'karyawanupdate':
+      file_exists('pages/karyawan/karyawanupdate.php') ? include 'pages/karyawan/karyawanupdate.php' : include '../pages/404.php';
+      $title = 'Karyawan';
+      break;
+    case 'karyawandelete':
+      file_exists('pages/karyawan/karyawandelete.php') ? include 'pages/karyawan/karyawandelete.php' : include '../pages/404.php';
       $title = 'Karyawan';
       break;
     case 'karyawandetail':
