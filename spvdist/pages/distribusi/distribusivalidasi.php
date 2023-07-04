@@ -1,358 +1,413 @@
 <?php
-include 'function.php';
 $database = new Database;
 $db = $database->getConnection();
 
-if (isset($_POST['button_validasi'])) {
+$select_distro = "SELECT * FROM distributor WHERE status_keaktifan = 'AKTIF' ORDER BY nama ASC";
+$stmt_distro = $db->prepare($select_distro);
+// $stmt_distro->execute();
 
-	$cup1 = !empty($_POST['cup1']) ? $_POST['cup1'] : 0;
-	$cup2 = !empty($_POST['cup2']) ? $_POST['cup2'] : 0;
-	$cup3 = !empty($_POST['cup3']) ? $_POST['cup3'] : 0;
-	$a3301 = !empty($_POST['a3301']) ? $_POST['a3301'] : 0;
-	$a3302 = !empty($_POST['a3302']) ? $_POST['a3302'] : 0;
-	$a3303 = !empty($_POST['a3303']) ? $_POST['a3303'] : 0;
-	$a5001 = !empty($_POST['a5001']) ? $_POST['a5001'] : 0;
-	$a5002 = !empty($_POST['a5002']) ? $_POST['a5002'] : 0;
-	$a5003 = !empty($_POST['a5003']) ? $_POST['a5003'] : 0;
-	$a6001 = !empty($_POST['a6001']) ? $_POST['a6001'] : 0;
-	$a6002 = !empty($_POST['a6002']) ? $_POST['a6002'] : 0;
-	$a6003 = !empty($_POST['a6003']) ? $_POST['a6003'] : 0;
-	$refill1 = !empty($_POST['refill1']) ? $_POST['refill1'] : 0;
-	$refill2 = !empty($_POST['refill2']) ? $_POST['refill2'] : 0;
-	$refill3 = !empty($_POST['refill3']) ? $_POST['refill3'] : 0;
+$select_armada = "SELECT * FROM armada WHERE status_keaktifan = 'AKTIF' ORDER BY plat ASC";
+$stmt_armada = $db->prepare($select_armada);
+// $stmt_armada->execute();
 
-	$jumlah_cup = $cup1 + $cup2 + $cup3;
-	$jumlah_330 = $a3301 + $a3302 + $a3303;
-	$jumlah_500 = $a5001 + $a5002 + $a5003;
-	$jumlah_600 = $a6001 + $a6002 + $a6003;
-	$jumlah_refill = $refill1 + $refill2 + $refill3;
-
-	$jarak1 = $_POST['jarak1'];
-	$jarak2 = $_POST['jarak2'];
-	$jarak3 = $_POST['jarak3'];
-
-	$jarak_max = max($jarak1, $jarak2, $jarak3);
-
-	$kateg = $_POST['kateg_mobil'];
-
-	$updatesql = "UPDATE distribusi SET jam_datang=?, keterangan=?, tgl_validasi=?, validasi_oleh=?, status='1' WHERE id=? ";
-	$stmt_update = $db->prepare($updatesql);
-	$jam_datang_format = date_create_from_format('d/m/Y H.i.s', $_POST['jam_datang']);
-	$jam_datang = $jam_datang_format->format('Y/m/d H:i:s');
-	$tgl_validasi = date('Y-m-d H:i:s');
-	$stmt_update->bindParam(1, $jam_datang);
-	$stmt_update->bindParam(2, $_POST['keterangan']);
-	$stmt_update->bindParam(3, $tgl_validasi);
-	$stmt_update->bindParam(4, $_SESSION['id']);
-	$stmt_update->bindParam(5, $_GET['id']);
-	$stmt_update->execute();
-
-	$array_tim_pengirim = array($_POST['driver'], !empty($_POST['helper_1']) ? $_POST['helper_1'] : NULL, !empty($_POST['helper_2']) ? $_POST['helper_2'] : NULL);
-	// var_dump($array_tim_pengirim[0]);
-	// var_dump($array_tim_pengirim[1]);
-	// var_dump($array_tim_pengirim[2]);
-	// die();
-	$jumlah_tim_pengirim = count(array_filter($array_tim_pengirim)) ?? 0;
-
-	$array_upah_tim_pengirim = array(!empty($_POST['usupir']) ? $_POST['usupir'] : 0, !empty($_POST['uhelper1']) ? $_POST['uhelper1'] : 0, !empty($_POST['uhelper2']) ? $_POST['uhelper2'] : 0);
-
-	$durasi = round((strtotime($jam_datang) - strtotime($_POST['jam_berangkat2'])) / 3600, 1);
-
-	for ($i = 0; $i < 3; $i++) {
-		$ontime = date_create($_POST['jam_datang']) <= date_modify(date_create($_POST['estimasi_jam_datang2']), '+15 Minutes');
-		$hitungInsentifOntime = $ontime ? hitungInsentifOntime($jarak_max, $kateg) : 0;
-		$hitungInsentifBongkar = hitungInsentifBongkar($jumlah_cup, $jumlah_330, $jumlah_500, $jumlah_600, $jumlah_refill);
-		$hitungUpah = hitungUpah($jarak_max, $array_upah_tim_pengirim[$i], $durasi);
-		if (empty($array_tim_pengirim[$i])) {
-			$hitungInsentifOntime = 0;
-			$hitungInsentifBongkar = 0;
-		}
-
-		$select_id_gaji = "SELECT * FROM gaji WHERE id_distribusi=? LIMIT $i,1";
-		$stmt_select_id_gaji = $db->prepare($select_id_gaji);
-		$stmt_select_id_gaji->bindParam(1, $_POST['no_perjalanan']);
-		$stmt_select_id_gaji->execute();
-		$row_select_id_gaji = $stmt_select_id_gaji->fetch(PDO::FETCH_ASSOC);
-		$id_gaji = $row_select_id_gaji['id'];
-
-		$insert_gaji = "UPDATE gaji SET ontime= ?, bongkar=?, upah=? WHERE id=?";
-		$stmt_insert_gaji = $db->prepare($insert_gaji);
-		$stmt_insert_gaji->bindParam(1, $hitungInsentifOntime);
-		$stmt_insert_gaji->bindParam(2, $hitungInsentifBongkar);
-		$stmt_insert_gaji->bindParam(3, $hitungUpah);
-		$stmt_insert_gaji->bindParam(4, $id_gaji);
-		$stmt_insert_gaji->execute();
-	}
-
-	$sukses = true;
-
-	if ($sukses) {
-		$_SESSION['hasil_validasi'] = true;
-		$_SESSION['pesan'] = "Berhasil Validasi Data";
-	} else {
-		$_SESSION['hasil_validasi'] = false;
-		$_SESSION['pesan'] = "Gagal Validasi Data";
-	}
-	echo '<meta http-equiv="refresh" content="0;url=?page=distribusiread"/>';
-	exit;
-}
+$select_karyawan = "SELECT * FROM karyawan WHERE status_keaktifan = 'AKTIF' AND (jabatan = 'HELPER' OR jabatan = 'DRIVER') ORDER BY nama ASC";
+$stmt_karyawan = $db->prepare($select_karyawan);
+// $stmt_karyawan->execute();
 
 if (isset($_GET['id'])) {
-	$selectsql = "SELECT a.*, d.*, d.id id_distribusi, k1.nama as supir, k1.upah_borongan usupir, k2.nama helper1, k2.upah_borongan uhelper1, k3.nama helper2, k3.upah_borongan uhelper2, do1.nama distro1, do1.jarak jdistro1, do2.nama distro2, do2.jarak jdistro2, do3.nama distro3, do3.jarak jdistro3
-    FROM distribusi d INNER JOIN armada a on d.id_plat = a.id
-    LEFT JOIN karyawan k1 on d.driver = k1.id
-    LEFT JOIN karyawan k2 on d.helper_1 = k2.id
-    LEFT JOIN karyawan k3 on d.helper_2 = k3.id
-    LEFT JOIN distributor do1 on d.nama_pel_1 = do1.id
-    LEFT JOIN distributor do2 on d.nama_pel_2 = do2.id
-    LEFT JOIN distributor do3 on d.nama_pel_3 = do3.id
-    WHERE d.id=?";
-	$stmt = $db->prepare($selectsql);
-	$stmt->bindParam(1, $_GET['id']);
-	$stmt->execute();
 
-	$row = $stmt->fetch(PDO::FETCH_ASSOC);
+  $main_select = "SELECT *, k1.nama supir, k2.nama helper1, k3.nama helper2, da.id id_distribusi_anggota
+FROM distribusi_anggota da LEFT JOIN distribusi_barang db on da.id = db.id_distribusi_anggota
+INNER JOIN armada a ON a.id = da.id_plat
+LEFT JOIN karyawan k1 ON k1.id = da.driver
+LEFT JOIN karyawan k2 ON k2.id = da.helper_1
+LEFT JOIN karyawan k3 ON k3.id = da.helper_2
+INNER JOIN pemesanan p ON p.id = db.id_order
+INNER JOIN distributor d ON d.id = p.id_distro
+WHERE da.id = ?";
+  $stmt_da = $db->prepare($main_select);
+  $stmt_da->bindParam(1, $_GET['id']);
+  $stmt_da->execute();
+
+  $row_da = $stmt_da->fetchAll(PDO::FETCH_ASSOC);
+
+  $select_pesanan = "SELECT * FROM pemesanan p WHERE id_distro = ?";
+  $stmt_db = $db->prepare($select_pesanan);
 }
 
 ?>
 <!-- Content Header (Page header) -->
 <div class="content-header">
-	<div class="container-fluid">
-		<div class="row mb-2">
-			<div class="col-sm-6">
-				<h1 class="m-0">Distribusi</h1>
-			</div><!-- /.col -->
-			<div class="col-sm-6">
-				<ol class="breadcrumb float-sm-right">
-					<li class="breadcrumb-item"><a href="?page=home">Home</a></li>
-					<li class="breadcrumb-item"><a href="?page=distribusiread">Distribusi</a></li>
-					<li class="breadcrumb-item active">Validasi Distribusi</li>
-				</ol>
-			</div><!-- /.col -->
-		</div><!-- /.row -->
-	</div><!-- /.container-fluid -->
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Distribusi</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="?page=home">Home</a></li>
+          <li class="breadcrumb-item"><a href="?page=distribusiread">Distribusi</a></li>
+          <li class="breadcrumb-item active">Detail Distribusi</li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
 </div>
 <!-- /.content-header -->
 
 <!-- Main content -->
 <div class="content">
-	<div class="card">
-		<div class="card-header">
-			<h3 class="card-title">Data Validasi Distribusi <br> No. Perjalanan : <span class="font-weight-bold"> [<?= $row['no_perjalanan']; ?>] </span></h3>
-		</div>
-		<div class="card-body">
-			<form action="" method="post">
-				<input type="hidden" value="<?= $row['id_distribusi']; ?>" name="no_perjalanan">
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title">Tujuan 1</h4>
-					</div>
-					<div class="card-body">
-						<div class="form-group">
-							<label for="nama_pel_1">Distributor</label>
-							<input type="text" name="nama_pel_1" class="form-control" value="<?= $row['distro1'] ?>" readonly>
-							<input type="hidden" name="jarak1" class="form-control" value="<?= $row['jdistro1'] ?>" readonly>
-						</div>
-						<div class="row">
-							<div class="col-md">
-								<div class="form-group">
-									<label for="cup1">Muatan Cup</label>
-									<input type="number" name="cup1" class="form-control" value="<?= $row['cup1'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a3301">Muatan A330</label>
-									<input type="number" name="a3301" class="form-control" value="<?= $row['a3301'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a5001">Muatan A500</label>
-									<input type="number" name="a5001" class="form-control" value="<?= $row['a5001'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a6001">Muatan A600</label>
-									<input type="number" name="a6001" class="form-control" value="<?= $row['a6001'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="refill1">Muatan Refill</label>
-									<input type="number" name="refill1" class="form-control" value="<?= $row['refill1'] ?>" readonly>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title">Tujuan 2</h4>
-					</div>
-					<div class="card-body">
-						<div class="form-group">
-							<label for="nama_pel_2">Distributor</label>
-							<input type="text" name="nama_pel_2" class="form-control" value="<?= $row['distro2'] ?>" readonly>
-							<input type="hidden" name="jarak2" class="form-control" value="<?= $row['jdistro2'] ?>" readonly>
-						</div>
-						<div class="row">
-							<div class="col-md">
-								<div class="form-group">
-									<label for="cup2">Muatan Cup</label>
-									<input type="number" name="cup2" class="form-control" value="<?= $row['cup2'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a3302">Muatan A330</label>
-									<input type="number" name="a3302" class="form-control" value="<?= $row['a3302'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a5002">Muatan A500</label>
-									<input type="number" name="a5002" class="form-control" value="<?= $row['a5002'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a6002">Muatan A600</label>
-									<input type="number" name="a6002" class="form-control" value="<?= $row['a6002'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="refill2">Muatan Refill</label>
-									<input type="number" name="refill2" class="form-control" value="<?= $row['refill2'] ?>" readonly>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title">Tujuan 3</h4>
-					</div>
-					<div class="card-body">
-						<div class="form-group">
-							<label for="nama_pel_3">Distributor</label>
-							<input type="text" name="nama_pel_3" class="form-control" value="<?= $row['distro3'] ?>" readonly>
-							<input type="hidden" name="jarak3" class="form-control" value="<?= $row['jdistro3'] ?>" readonly>
-						</div>
-						<div class="row">
-							<div class="col-md">
-								<div class="form-group">
-									<label for="cup3">Muatan Cup</label>
-									<input type="number" name="cup3" class="form-control" value="<?= $row['cup3'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a3303">Muatan A330</label>
-									<input type="number" name="a3303" class="form-control" value="<?= $row['a3303'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a5003">Muatan A500</label>
-									<input type="number" name="a5003" class="form-control" value="<?= $row['a5003'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="a6003">Muatan A600</label>
-									<input type="number" name="a6003" class="form-control" value="<?= $row['a6003'] ?>" readonly>
-								</div>
-							</div>
-							<div class="col-md">
-								<div class="form-group">
-									<label for="refill3">Muatan Refill</label>
-									<input type="number" name="refill3" class="form-control" value="<?= $row['refill3'] ?>" readonly>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Data Detail Distribusi</h3>
+      <a href="?page=distribusiread" class="btn btn-danger btn-sm float-right">
+        <i class="fa fa-arrow-left"></i> Kembali
+      </a>
+    </div>
+    <div class="card-body">
+      <form action="?page=doDistribusiValidasi&id=<?= $_GET['id'] ?>" method="post">
+        <div class="form-group">
+          <label for="id_plat">Armada</label>
+          <select name="id_plat" class="form-control" required>
+            <option value="">--Pilih Armada--</option>
+            <?php
+            $stmt_armada->execute();
+            while ($row_armada = $stmt_armada->fetch(PDO::FETCH_ASSOC)) {
+              $selected_armada = $row_armada['id'] ==  $row_da[0]['id_plat'] ? 'selected' : ''; ?>
+              <option <?= $selected_armada ?> value="<?= $row_armada['id'] ?>"><?= $row_armada['plat'] ?> - <?= $row_armada['jenis_mobil'] ?></option>
+            <?php } ?>
+          </select>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Tim Pengirim</h4>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="driver">Supir</label>
+                  <select name="driver" class="form-control" required>
+                    <option value="">--Pilih Nama Supir--</option>
+                    <?php
+                    $stmt_karyawan->execute();
+                    while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
+                      $selected_karyawan = $row_karyawan['id'] ==  $row_da[0]['driver'] ? 'selected' : ''; ?>
+                      <option <?= $selected_karyawan ?> value="<?= $row_karyawan['id'] ?>"><?= $row_karyawan['nama'] ?> - <?= $row_karyawan['sim'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="helper_1">Helper 1</label>
+                  <select name="helper_1" class="form-control">
+                    <option value="">--Pilih Nama Helper 1--</option>
+                    <?php
+                    $stmt_karyawan->execute();
+                    while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
+                      $selected_karyawan = $row_karyawan['id'] ==  $row_da[0]['helper_1'] ? 'selected' : ''; ?>
+                      <option <?= $selected_karyawan ?> value="<?= $row_karyawan['id'] ?>"><?= $row_karyawan['nama'] ?> - <?= $row_karyawan['sim'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label for="helper_2">Helper 2</label>
+                  <select name="helper_2" class="form-control">
+                    <option value="">--Pilih Nama Helper 2--</option>
+                    <?php
+                    $stmt_karyawan->execute();
+                    while ($row_karyawan = $stmt_karyawan->fetch(PDO::FETCH_ASSOC)) {
+                      $selected_karyawan = $row_karyawan['id'] ==  $row_da[0]['helper_2'] ? 'selected' : ''; ?>
+                      <option <?= $selected_karyawan ?> value="<?= $row_karyawan['id'] ?>"><?= $row_karyawan['nama'] ?> - <?= $row_karyawan['sim'] ?></option>
+                    <?php } ?>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-				<div class="form-group">
-					<label for="id_plat">Armada</label>
-					<input type="text" name="id_plat" class="form-control" value="<?= $row['plat'], " - ", $row['jenis_mobil']; ?>" readonly>
-					<input type="hidden" name="kateg_mobil" class="form-control" value="<?= $row['kateg_mobil'] ?>" readonly>
-				</div>
-				<div class="card">
-					<div class="card-header">
-						<h4 class="card-title">Tim Pengirim</h4>
-					</div>
-					<div class="card-body">
-						<div class="form-group">
-							<div class="row">
-								<div class="col-md-4">
-									<label for="driver">Supir</label>
-									<input type="text" name="driver" class="form-control" value="<?= $row['supir']; ?>" readonly>
-									<input type="hidden" name="usupir" class="form-control" value="<?= $row['usupir']; ?>" readonly>
-								</div>
-								<div class="col-md-4">
-									<label for="helper_1">Helper 1</label>
-									<input type="text" name="helper_1" class="form-control" value="<?= $row['helper1']; ?>" readonly>
-									<input type="hidden" name="uhelper1" class="form-control" value="<?= $row['uhelper1']; ?>" readonly>
-								</div>
-								<div class="col-md-4">
-									<label for="helper_2">Helper 2</label>
-									<input type="text" name="helper_2" class="form-control" value="<?= $row['helper2']; ?>" readonly>
-									<input type="hidden" name="uhelper2" class="form-control" value="<?= $row['uhelper2']; ?>" readonly>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<div class="row">
-						<div class="col-md-4">
-							<label for="jam_berangkat">Jam Keberangkatan</label>
-							<input type="text" name="jam_berangkat" class="form-control" value="<?= date('d/m/Y H:i:s', strtotime($row['jam_berangkat'])); ?>" readonly>
-							<input type="hidden" name="jam_berangkat2" class="form-control" value="<?= $row['jam_berangkat']; ?>" readonly>
-						</div>
-						<div class="col-md-4">
-							<label for="estimasi_jam_datang">Estimasi Kedatangan</label>
-							<input type="text" name="estimasi_jam_datang" class="form-control" value="<?= date('d/m/Y H:i:s', strtotime($row['estimasi_jam_datang'])); ?>" readonly>
-							<input type="hidden" name="estimasi_jam_datang2" class="form-control" value="<?= $row['estimasi_jam_datang']; ?>" readonly>
-						</div>
-						<div class="col-md-4">
-							<label for="jam_datang">Jam Kedatangan (WAJIB DIISI)</label>
-							<input id='datetimepicker1' type='text' class='form-control' data-td-target='#datetimepicker1' placeholder="dd/mm/yyyy hh:mm" name="jam_datang" required>
-						</div>
-					</div>
-				</div>
-				<div class="form-group">
-					<label for="keterangan">Keterangan</label>
-					<input type="text" name="keterangan" class="form-control" placeholder="Isi hanya jika kedatangan tim pengiriman melebihi estimasi kedatangan">
-				</div>
-				<div class="form-group">
-					<div class="form-check">
-						<input class="form-check-input " type="checkbox" value="1" id="flexCheckDefault" name="bongkar" <?= $row['bongkar'] == 1 ? 'checked' : ''; ?> readonly>
-						<label class="form-check-label text-bold" for="flexCheckDefault">
-							Bongkar muatan?
-						</label>
-					</div>
-				</div>
-				<a href="?page=distribusiread" class="btn btn-danger btn-sm float-right">
-					<i class="fa fa-arrow-left"></i> Kembali
-				</a>
-				<button type="submit" name="button_validasi" class="btn btn-success btn-sm float-right mr-1">
-					<i class="fa fa-save"></i> Validasi
-				</button>
-			</form>
-		</div>
-	</div>
+        <?php
+        $jumlah_data = sizeof($row_da);
+        // var_dump($jumlah_data);
+        // die();
+        for ($i = 0; $i < $jumlah_data; $i++) { ?>
+          <div class="card">
+            <div class="card-header">
+              <h4 id="new_tujuan" class="card-title">Tujuan <?= $i + 1 ?></h4>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4" id="xyz1">
+                  <div class="form-group">
+                    <label for="nama_pel_1[]">Distributor</label>
+                    <select name="nama_pel_1[]" class="form-control" required>
+                      <?php
+                      $stmt_distro->execute();
+                      while ($row_distro = $stmt_distro->fetch(PDO::FETCH_ASSOC)) {
+                        $selected_distro = $row_distro['id'] ==  $row_da[$i]['id_distro'] ? 'selected' : ''; ?>
+                        <option <?= $selected_distro ?> value="<?= $row_distro['id'] ?>"><?= $row_distro['nama'] ?> - <?= $row_distro['id_da'] ?> (<?= $row_distro['jarak'] ?> km)</option>
+                      <?php }
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4" id="xyz2">
+                  <div class="form-group">
+                    <label for="pesanan[]">Pesanan</label>
+                    <select id="listorder" name="pesanan[]" class="form-control">
+                      <?php
+                      $stmt_db->bindParam(1, $row_da[$i]['id_distro']);
+                      $stmt_db->execute();
+                      while ($row_db = $stmt_db->fetch(PDO::FETCH_ASSOC)) {
+                        $selected_pesanan = $row_db['id'] ==  $row_da[$i]['id_order'] ? 'selected' : ''; ?>
+                        <option <?= $selected_pesanan ?> value="<?= $row_db['id'] ?>"><?= $row_db['nomor_order'] ?></option>
+                      <?php }
+                      ?>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4" id="xyz3">
+                  <div class="form-group">
+                    <label for="tgl_order">Tanggal Order</label>
+                    <input type="text" class="form-control" name="tgl_order" value="<?= tanggal_indo($row_da[$i]['tgl_order']) ?>" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md">
+                  <div class="form-group">
+                    <label for="cup1[]">Muatan Cup</label>
+                    <input type="number" name="cup1[]" class="form-control" value="<?= $row_da[$i]['cup'] ?>" readonly>
+                  </div>
+                </div>
+                <div class="col-md">
+                  <div class="form-group">
+                    <label for="a3301">Muatan A330</label>
+                    <input type="number" name="a3301[]" class="form-control" value="<?= $row_da[$i]['a330'] ?>" readonly>
+                  </div>
+                </div>
+                <div class="col-md">
+                  <div class="form-group">
+                    <label for="a5001">Muatan A500</label>
+                    <input type="number" name="a5001[]" class="form-control" value="<?= $row_da[$i]['a500'] ?>" readonly>
+                  </div>
+                </div>
+                <div class="col-md">
+                  <div class="form-group">
+                    <label for="a6001">Muatan A600</label>
+                    <input type="number" name="a6001[]" class="form-control" value="<?= $row_da[$i]['a600'] ?>" readonly>
+                  </div>
+                </div>
+                <div class="col-md">
+                  <div class="form-group">
+                    <label for="refill1">Muatan Refill</label>
+                    <input type="number" name="refill1[]" class="form-control" value="<?= $row_da[$i]['refill'] ?>" readonly>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <?php } ?>
+        <div id="new"></div>
+        <div class="form-group mt-3">
+          <div class="row">
+            <div class="col-md-4">
+              <label for="jam_berangkat">Jam Keberangkatan</label>
+              <input type='text' class='form-control' data-td-target='#datetimepicker1' placeholder="dd/mm/yyyy hh:mm" value="<?= tanggal_indo($row_da[0]['jam_berangkat']) ?>" disabled>
+            </div>
+            <div class="col-md-4">
+              <label for="jam_datang">Jam Kedatangan</label>
+              <?php if ($row_da[0]['jam_datang'] == NULL) { ?>
+                <input id='datetimepicker1' type='text' class='form-control' data-td-target='#datetimepicker1' placeholder="dd/mm/yyyy hh:mm" name="jam_datang" required>
+              <?php } else { ?>
+                <input id='datetimepicker1' type='text' class='form-control' data-td-target='#datetimepicker1' placeholder="dd/mm/yyyy hh:mm" value="<?= tanggal_indo($row_da[0]['jam_datang']) ?>" name="jam_datang" required>
+              <?php } ?>
+            </div>
+          </div>
+        </div>
+        <a href="?page=distribusiread" class="btn btn-danger btn-sm float-right">
+          <i class="fa fa-times"></i> Batal
+        </a>
+        <button type="submit" name="button_create" class="btn btn-success btn-sm float-right mr-1">
+          <i class="fa fa-save"></i> Validasi
+        </button>
+      </form>
+    </div>
+  </div>
 </div>
+
+<?php
+include_once "../partials/scriptdatatables.php";
+?>
+
 <script>
-	$(document).ready(function() {
-		$(":checkbox").bind("click", false);
-		$("#datetimepicker1").keydown(function(event) {
-			return false;
-		});
-	});
+  $(document).ready(function() {
+
+    $('select').prop('disabled', true);
+
+    // });
+
+  });
+
+  $('form').on('submit', function(e) {
+    $('select').removeAttr('disabled');
+  });
+
+  var i = $('button#tah').length;
+  $(document).on('click', 'button[name="tambah_tujuan"]', function(e) {
+    i++;
+    var html = '';
+    html += '<div class="card">';
+    html += '<div class="card-header">';
+    html += `<h4 id="new_tujuan" class="card-title">Tujuan ${i}</h4>`;
+    html += '<button type="button" name="tambah_tujuan" class="btn btn-success btn-sm float-right" id="tah">';
+    html += '<i class="fas fa-plus"></i>';
+    html += '</button>';
+    html += '</div>';
+    html += '<div class="card-body">';
+    html += '<div class="row">';
+    html += '<div class="col-md-4" id="xyz1">';
+    html += '<div class="form-group">';
+    html += '<label for="nama_pel_1[]">Distributor</label>';
+    html += '<select name="nama_pel_1[]" class="form-control" required>';
+    html += '<option value="">--Pilih Nama Distributor--</option>';
+    html += '<?php $stmt_distro->execute();
+              while ($row_distro = $stmt_distro->fetch(PDO::FETCH_ASSOC)) { ?>';
+    html += '<option value="<?= $row_distro['id'] ?>"><?= $row_distro['nama'] . " - " . $row_distro['id_da'] . " (" . $row_distro['jarak'] . " km)" ?> </option>';
+    html += '<?php } ?>';
+    html += '</select>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md-4" id="xyz2">';
+    html += '<div class="form-group">';
+    html += '<label for="pesanan[]">Pesanan</label>';
+    html += '<select id="listorder" name="pesanan[]" class="form-control">';
+    html += '<option value="">--Pilih Order--</option>';
+    html += '</select>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md-4" id="xyz3">';
+    html += '<div class="form-group">';
+    html += '<label for="tgl_order">Tanggal Order</label>';
+    html += '<input type="text" class="form-control" name="tgl_order" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="row">';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="cup1[]">Muatan Cup</label>';
+    html += '<input type="number" name="cup1[]" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="a3301[]">Muatan A330</label>';
+    html += '<input type="number" name="a3301[]" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="a5001[]">Muatan A500</label>';
+    html += '<input type="number" name="a5001[]" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="a6001[]">Muatan A600</label>';
+    html += '<input type="number" name="a6001[]" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="col-md">';
+    html += '<div class="form-group">';
+    html += '<label for="refill1[]">Muatan Refill</label>';
+    html += '<input type="number" name="refill1[]" class="form-control" readonly>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    $('#new').append(html);
+    var total = $('button#tah').length;
+    for (var l = 0; l < total - 1; l++) {
+      $(`button#tah:eq(${l})`).remove();
+      $(`.card`).find(`.card-header:eq(${l+2})`).append('<button type="button" name="hapus_tujuan" class="btn btn-danger btn-sm float-right" id="tah"><i class="fas fa-trash"></i></button>')
+    }
+
+
+    $("html, body").animate({
+      scrollTop: $(document).height()
+    }, 0);
+  });
+
+
+  $(document).on('change', 'select[name="nama_pel_1[]"]', function(e) {
+    var optionSelected = $("option:selected", e.target);
+    var valueSelected = e.target.value;
+    // console.log(valueSelected);
+    $(e.target).parents('#xyz1').siblings('#xyz2').find('option').remove().end();
+    $.ajax({
+      url: "./pages/distribusi/dataorder.php?id=" + valueSelected,
+      method: "GET",
+      dataType: 'json',
+      success: function(data) {
+        // console.log(data);
+        if (data[0].length == 0) {
+          $(e.target).parents('.card-body:first').find('#listorder').append(
+            `<option value="">Order tidak ditemukan</option>`
+          );
+          $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val('Order tidak ditemukan')
+          $(e.target).parents('.card-body:first').find("input[name='cup1[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a3301[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a5001[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='a6001[]']").val(0)
+          $(e.target).parents('.card-body:first').find("input[name='refill1[]']").val(0)
+        } else {
+          for (let i = 0; i < data.length; i++) {
+            $(e.target).parents('.card-body:first').find('#listorder').append(
+              `<option value="${data[i][0]}">${data[i][1]}</option>`
+            );
+          }
+          $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val(data[0][2]);
+          $(e.target).parents('.card-body:first').find("input[name='cup1[]']").val(data[0][3]);
+          $(e.target).parents('.card-body:first').find("input[name='a3301[]']").val(data[0][4]);
+          $(e.target).parents('.card-body:first').find("input[name='a5001[]']").val(data[0][5]);
+          $(e.target).parents('.card-body:first').find("input[name='a6001[]']").val(data[0][6]);
+          $(e.target).parents('.card-body:first').find("input[name='refill1[]']").val(data[0][7]);
+        }
+      }
+    });
+  });
+
+  $(document).on('change', 'select[name="pesanan[]"]', function(e) {
+    var optionSelected = $("option:selected", e.target);
+    var valueSelected = e.target.value;
+    $.ajax({
+      url: "./pages/distribusi/dataorderbyid.php?id=" + valueSelected,
+      method: "GET",
+      dataType: 'json',
+      success: function(data) {
+        // console.log(data);
+        for (let i = 0; i < data.length; i++) {
+          $(e.target).parents('.card-body:first').find("input[name='tgl_order']").val(data[0]);
+          $(e.target).parents('.card-body:first').find("input[name='cup1[]']").val(data[1]);
+          $(e.target).parents('.card-body:first').find("input[name='a3301[]']").val(data[2]);
+          $(e.target).parents('.card-body:first').find("input[name='a5001[]']").val(data[3]);
+          $(e.target).parents('.card-body:first').find("input[name='a6001[]']").val(data[4]);
+          $(e.target).parents('.card-body:first').find("input[name='refill1[]']").val(data[5]);
+        }
+      }
+    });
+  });
+
+  $(document).on('click', 'button[name="hapus_tujuan"]', function(e) {
+    $(e.target).closest('.card').remove();
+    $('div div div div h4#new_tujuan').each(function(index) {
+      $(this).text("Tujuan " + (index + 1))
+    });
+    i--;
+  });
 </script>
 <!-- /.content -->

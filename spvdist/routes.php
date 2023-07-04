@@ -62,6 +62,10 @@ if (isset($_GET['page'])) {
       file_exists('pages/distribusi/distribusivalidasi.php') ? include 'pages/distribusi/distribusivalidasi.php' : include '../pages/404.php';
       $title = 'Distribusi';
       break;
+    case 'doDistribusiValidasi':
+      file_exists('pages/distribusi/doDistribusiValidasi.php') ? include 'pages/distribusi/doDistribusiValidasi.php' : include '../pages/404.php';
+      $title = 'Distribusi';
+      break;
     case 'distribusibatalvalidasi':
       file_exists('pages/distribusi/distribusibatalvalidasi.php') ? include 'pages/distribusi/distribusibatalvalidasi.php' : include '../pages/404.php';
       $title = 'Distribusi';

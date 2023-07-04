@@ -85,6 +85,7 @@ if (isset($_SESSION['hasil'])) {
             <th>Amigol 500 ml</th>
             <th>Amigol 600 ml</th>
             <th>Refill Galon 19 ltr</th>
+            <th>Status</th>
             <th style="display: flex;">Opsi</th>
           </tr>
         </thead>
@@ -93,7 +94,7 @@ if (isset($_SESSION['hasil'])) {
           $database = new Database;
           $db = $database->getConnection();
 
-          $selectsql = 'SELECT *, p.id id_order FROM pemesanan p INNER JOIN distributor d ON p.id_distro = d.id';
+          $selectsql = 'SELECT *, p.id id_order FROM pemesanan p INNER JOIN distributor d ON p.id_distro = d.id LEFT JOIN distribusi_barang db ON db.id_order = p.id';
           $stmt = $db->prepare($selectsql);
           $stmt->execute();
 
@@ -103,13 +104,18 @@ if (isset($_SESSION['hasil'])) {
             <tr>
               <td><?= $no++ ?></td>
               <td><?= $row['nomor_order'] ?></td>
-              <td><?= tanggal_indo($row['tgl_order'])?></td>
+              <td><?= tanggal_indo($row['tgl_order']) ?></td>
               <td><?= $row['nama'] ?></td>
               <td><?= $row['cup'] ?></td>
               <td><?= $row['a330'] ?></td>
               <td><?= $row['a500'] ?></td>
               <td><?= $row['a600'] ?></td>
               <td><?= $row['refill'] ?></td>
+              <?php if ($row['status'] == NULL) { ?>
+                <td>Sedang Diproses</td>
+              <?php } else { ?>
+                <td><?= $row['status'] ?></td>
+              <?php } ?>
               <td>
                 <a href="?page=orderupdate&id=<?= $row['id_order']; ?>" class="btn btn-primary btn-sm mr-1">
                   <i class="fa fa-edit"></i> Ubah

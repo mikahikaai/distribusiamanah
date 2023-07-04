@@ -5,7 +5,7 @@ include '../../../database/database.php';
 $database = new Database;
 $db = $database->getConnection();
 
-$query = "SELECT * FROM pemesanan WHERE id_distro=?";
+$query = "SELECT *, p.id as id_pemesanan FROM pemesanan p LEFT JOIN distribusi_barang db ON p.id = db.id_order WHERE id_distro=? AND db.status IS NULL";
 $stmt = $db->prepare($query);
 $stmt->bindParam(1, $_GET['id']);
 $stmt->execute();
@@ -13,7 +13,7 @@ $stmt->execute();
 $data = [[]];
 $i = 0;
 while ($result = $stmt->fetch(PDO::FETCH_ASSOC)) {
-  $data[$i][] = $result['id'];
+  $data[$i][] = $result['id_pemesanan'];
   $data[$i][] = $result['nomor_order'];
   $data[$i][] = tanggal_indo($result['tgl_order']);
   $data[$i][] = $result['cup'];

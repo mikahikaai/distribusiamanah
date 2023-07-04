@@ -37,8 +37,14 @@ if (isset($_SESSION['hasil'])) {
   if ($_SESSION['hasil_update']) {
   ?>
     <div id='hasil_update'></div>
-<?php }
+  <?php }
   unset($_SESSION['hasil_update']);
+} elseif (isset($_SESSION['hasil_validasi'])) {
+  if ($_SESSION['hasil_validasi']) {
+  ?>
+    <div id='hasil_validasi'></div>
+<?php }
+  unset($_SESSION['hasil_validasi']);
 } ?>
 
 <div class="content-header">
@@ -98,14 +104,15 @@ if (isset($_SESSION['hasil'])) {
           $database = new Database;
           $db = $database->getConnection();
 
-          $selectsql = "SELECT *, k1.nama supir, k2.nama helper1, k3.nama helper2, da.id id_distribusi_anggota
-          FROM distribusi_anggota da LEFT JOIN distribusi_barang db on da.id = db.id_distribusi_anggota
+          $selectsql = "SELECT *, k1.nama supir, k2.nama helper1, k3.nama helper2, da.id id_distribusi_anggota, db.status status_terkirim
+          FROM distribusi_barang db
+          LEFT JOIN distribusi_anggota da on da.id = db.id_distribusi_anggota
           INNER JOIN armada a ON a.id = da.id_plat
           LEFT JOIN karyawan k1 ON k1.id = da.driver
           LEFT JOIN karyawan k2 ON k2.id = da.helper_1
           LEFT JOIN karyawan k3 ON k3.id = da.helper_2
-          INNER JOIN pemesanan p ON p.id = db.id_order
-          INNER JOIN distributor d ON d.id = p.id_distro";
+          LEFT JOIN pemesanan p ON p.id = db.id_order
+          LEFT JOIN distributor d ON d.id = p.id_distro";
           $stmt = $db->prepare($selectsql);
           $stmt->execute();
 
@@ -136,13 +143,24 @@ if (isset($_SESSION['hasil'])) {
               <td><?= tanggal_indo($row['estimasi_jam_datang']) ?></td>
               <td><?= $estimasi_lama_perjalanan ?></td>
               <td><?= $jam_datang ?></td>
-              <td><?= $row['status'] ?></td>
+              <td><?= $row['status_terkirim'] ?></td>
               <td>
                 <a href="?page=distribusidetail&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-success btn-sm mr-1">
                   <i class="fa fa-eye"></i> Lihat
                 </a>
-                <a href="?page=distribusiupdate&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-primary btn-sm mr-1">
-                  <i class="fa fa-edit"></i> Ubah
+                <?php
+                if ($jam_datang == '-') {
+                ?>
+                  <a href="?page=distribusiupdate&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-primary btn-sm mr-1">
+                    <i class="fa fa-edit"></i> Ubah
+                  </a>
+                <?php } else { ?>
+                  <a href="?page=distribusiupdate&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-secondary btn-sm mr-1 disabled">
+                    <i class="fa fa-edit"></i> Ubah
+                  </a>
+                <?php } ?>
+                <a href="?page=distribusivalidasi&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-warning btn-sm mr-1">
+                  <i class="fa fa-edit"></i> Validasi
                 </a>
                 <a href="?page=distribusidelete&id=<?= $row['id_distribusi_anggota']; ?>" class="btn btn-danger btn-sm mr-1" id="distribusidelete">
                   <i class="fa fa-trash"></i> Hapus
@@ -212,6 +230,13 @@ include_once "../partials/scriptdatatables.php";
     Swal.fire({
       title: 'Updated!',
       text: 'Data berhasil diubah',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    })
+  } else if ($('div#hasil_validasi').length) {
+    Swal.fire({
+      title: 'Tervalidasi!',
+      text: 'Data berhasil divalidasi',
       icon: 'success',
       confirmButtonText: 'OK'
     })
