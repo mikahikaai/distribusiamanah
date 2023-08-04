@@ -14,21 +14,25 @@ if (isset($_GET['page'])) {
       file_exists('pages/armada/armadaread.php') ? include 'pages/armada/armadaread.php' : include '../pages/404.php';
       $title = 'Armada';
       break;
-    case 'armadacreate':
-      file_exists('pages/armada/armadacreate.php') ? include 'pages/armada/armadacreate.php' : include '../pages/404.php';
-      $title = 'Armada';
+    case 'dataorder':
+      file_exists('pages/order/orderread.php') ? include 'pages/order/orderread.php' : include '../pages/404.php';
+      $title = 'Order';
       break;
-    case 'armadaupdate':
-      file_exists('pages/armada/armadaupdate.php') ? include 'pages/armada/armadaupdate.php' : include '../pages/404.php';
-      $title = 'Armada';
+    case 'ordercreate':
+      file_exists('pages/order/ordercreate.php') ? include 'pages/order/ordercreate.php' : include '../pages/404.php';
+      $title = 'Order';
       break;
-    case 'armadadelete':
-      file_exists('pages/armada/armadadelete.php') ? include 'pages/armada/armadadelete.php' : include '../pages/404.php';
-      $title = 'Armada';
+    case 'orderupdate':
+      file_exists('pages/order/orderupdate.php') ? include 'pages/order/orderupdate.php' : include '../pages/404.php';
+      $title = 'Order';
       break;
-    case 'armadadetail':
-      file_exists('pages/armada/armadadetail.php') ? include 'pages/armada/armadadetail.php' : include '../pages/404.php';
-      $title = 'Armada';
+    case 'orderdelete':
+      file_exists('pages/order/orderdelete.php') ? include 'pages/order/orderdelete.php' : include '../pages/404.php';
+      $title = 'Order';
+      break;
+    case 'orderdetail':
+      file_exists('pages/order/orderdetail.php') ? include 'pages/order/orderdetail.php' : include '../pages/404.php';
+      $title = 'Order';
       break;
     case 'distribusiread':
       file_exists('pages/distribusi/distribusiread.php') ? include 'pages/distribusi/distribusiread.php' : include '../pages/404.php';
