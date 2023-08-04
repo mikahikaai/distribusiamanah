@@ -148,7 +148,7 @@ if (isset($_POST['login'])) {
 <body>
   <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #61BD9A;">
     <div class="container">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand" href="/">
         <img width="40%" src="images/Air-Amanah-Palangkaraya-Logo-fix.webp" alt="">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -158,13 +158,10 @@ if (isset($_POST['login'])) {
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
+              <a class="nav-link active" aria-current="page" href="/">Home</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="#">Profil Perusahaan</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="#">Lacak Barang</a>
+              <a class="nav-link" href="/profile.php">Profil Perusahaan</a>
             </li>
             <li class="nav-item">
               <!-- Button trigger modal -->
