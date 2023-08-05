@@ -14,6 +14,22 @@ if (isset($_GET['page'])) {
       file_exists('pages/armada/armadaread.php') ? include 'pages/armada/armadaread.php' : include '../pages/404.php';
       $title = 'Armada';
       break;
+    case 'armadacreate':
+      file_exists('pages/armada/armadacreate.php') ? include 'pages/armada/armadacreate.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
+    case 'armadaupdate':
+      file_exists('pages/armada/armadaupdate.php') ? include 'pages/armada/armadaupdate.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
+    case 'armadadelete':
+      file_exists('pages/armada/armadadelete.php') ? include 'pages/armada/armadadelete.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
+    case 'armadadetail':
+      file_exists('pages/armada/armadadetail.php') ? include 'pages/armada/armadadetail.php' : include '../pages/404.php';
+      $title = 'Armada';
+      break;
     case 'dataorder':
       file_exists('pages/order/orderread.php') ? include 'pages/order/orderread.php' : include '../pages/404.php';
       $title = 'Order';
